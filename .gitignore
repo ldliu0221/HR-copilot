@@ -1,0 +1,35 @@
+# Runtime data
+data/
+状态同步/
+*.xlsx
+*.csv
+*.jsonl
+
+# Build and packaged output
+dist/
+build/
+*.exe
+*.spec
+
+# Local launch/deploy scripts
+run.sh
+docker-run.sh
+server-env-check.sh
+Dockerfile
+.dockerignore
+build-exe.ps1
+exe_launcher.py
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Logs
+*.log
+server_out.log
+server_err.log
+
+# IDE and Codex local metadata
+.idea/
+.agents/
+.codex/
