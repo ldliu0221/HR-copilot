@@ -1,24 +1,23 @@
-# Runtime data
+﻿# Runtime data
 data/
-状态同步/
 *.xlsx
 *.csv
 *.jsonl
 
 # Build and packaged output
+project_files/build_artifacts/
 dist/
 build/
 *.exe
 *.spec
 
-# Local launch/deploy scripts
-run.sh
-docker-run.sh
-server-env-check.sh
-Dockerfile
-.dockerignore
-build-exe.ps1
-exe_launcher.py
+# Local launch/deploy/packaging scripts
+project_files/deploy/
+project_files/packaging/
+project_files/documents/
+*.docx
+*.zip
+*.pid
 
 # Python cache
 __pycache__/

@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI 招聘流程 Copilot</title>
+  <style>
+    :root{--bg:#f6f7fb;--panel:#fff;--ink:#172033;--muted:#667085;--line:#d9dee8;--brand:#126b61;--brand2:#2f6fed;--warn:#c97913;--bad:#c43d4b;--ok:#228b5b;--shadow:0 12px 32px rgba(26,34,52,.09)}
+    body.theme-dark{--bg:#0f141d;--panel:#171e29;--ink:#edf3fb;--muted:#a8b4c4;--line:#2c3747;--shadow:0 16px 36px rgba(0,0,0,.28)}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei",Arial,sans-serif;letter-spacing:0}
+    .app{min-height:100vh;display:grid;grid-template-columns:248px 1fr}
+    aside{background:#172033;color:#f7fbff;padding:22px 18px;position:sticky;top:0;height:100vh}
+    .brand{font-size:22px;font-weight:800;line-height:1.2;margin-bottom:22px}.brand small{display:block;font-size:12px;color:#adc0d8;margin-top:8px;font-weight:500}
+    nav button{width:100%;border:0;background:transparent;color:#dce7f5;text-align:left;padding:11px 12px;border-radius:8px;margin:3px 0;cursor:pointer;font-size:14px}
+    nav button.active,nav button:hover{background:#243149;color:#fff}
+    main{padding:24px 28px 40px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.topbar h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 14px;cursor:pointer;color:var(--ink);font-weight:700;white-space:nowrap}.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}.btn.blue{background:var(--brand2);color:#fff;border-color:var(--brand2)}.btn:disabled{opacity:.55;cursor:not-allowed}
+    .grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,minmax(150px,1fr));margin-bottom:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow)}
+    .kpi{padding:18px}.kpi .label{font-size:13px;color:var(--muted)}.kpi .value{font-size:30px;font-weight:800;margin-top:8px}
+    .layout{display:grid;grid-template-columns:1.5fr .9fr;gap:16px}.section{padding:18px}.section h2{font-size:17px;margin:0 0 14px}.muted{color:var(--muted)}
+    .stage-row{display:grid;grid-template-columns:86px 1fr 42px;align-items:center;gap:10px;margin:10px 0}.bar{height:10px;background:#e8edf5;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:999px}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;border-bottom:1px solid var(--line);padding:11px 8px;font-size:13px;vertical-align:middle}th{color:var(--muted);font-weight:800;background:rgba(127,139,158,.09)}tr:hover td{background:rgba(127,139,158,.07)}
+    .pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 9px;background:#eef4ff;color:#2455a6;font-weight:700;font-size:12px}.pill.ok{background:#eaf7ef;color:var(--ok)}.pill.warn{background:#fff5e7;color:var(--warn)}.pill.bad{background:#fff0f1;color:var(--bad)}
+    .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.toolbar input{min-width:200px}.toolbar select{min-width:180px}input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:10px 11px;background:var(--panel);color:var(--ink);font:inherit}input{height:40px}select{height:44px;line-height:22px;padding:8px 34px 8px 11px}textarea{width:100%;min-height:90px;resize:vertical}
+    .detail{display:grid;gap:12px}.detail .row{display:grid;grid-template-columns:82px 1fr;gap:10px;font-size:13px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{background:#f0f3f8;border:1px solid #e1e6ef;border-radius:999px;padding:5px 8px;font-size:12px}
+    .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.lane{background:#fff;border:1px solid var(--line);border-radius:8px;min-height:180px;padding:12px}.lane h3{font-size:14px;margin:0 0 10px}.mini{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;background:#fbfcff}.mini b{display:block;font-size:13px}.mini span{font-size:12px;color:var(--muted)}
+    .profile-editor{display:grid;grid-template-columns:320px 1fr;gap:16px}.list button{display:block;width:100%;padding:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer}.list button.active{border-color:var(--brand);box-shadow:0 0 0 2px rgba(18,107,97,.12)}
+    #interview .profile-editor{height:calc(100vh - 126px);min-height:420px;overflow:hidden;align-items:stretch;grid-template-columns:320px minmax(0,1fr)}
+    #interview .profile-editor>.card{display:flex;flex-direction:column;overflow:hidden;min-height:0;max-height:100%}
+    #interviewCandidateList,#interviewPanel{flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding-right:4px}
+    #interviewCandidateList{padding-bottom:12px}
+    #interviewPanel{padding-bottom:14px}
+    #candidates .toolbar,#interview .profile-editor>.card:first-child .toolbar{position:sticky;top:0;z-index:5;background:var(--panel);padding-bottom:10px}
+    #interview .profile-head,#training .profile-head{position:sticky;top:-18px;z-index:6}
+    .profile-panel{padding:0;overflow:hidden}.profile-head{background:linear-gradient(135deg,#f0f8f6,#f4f7ff);border-bottom:1px solid var(--line);padding:18px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.profile-head h2{margin:0;font-size:18px}.profile-head p{margin:6px 0 0;color:var(--muted);font-size:13px}.profile-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.stat{min-width:82px;border:1px solid #d8e4ee;background:rgba(255,255,255,.72);border-radius:8px;padding:8px 10px;text-align:center}.stat b{display:block;font-size:18px;color:var(--brand)}.stat span{display:block;font-size:12px;color:var(--muted);white-space:nowrap}.jd-builder{display:grid;grid-template-columns:1fr 1fr;gap:12px}.jd-form{display:grid;gap:10px}.jd-preview{min-height:280px;max-height:520px;overflow:auto;white-space:pre-wrap;line-height:1.65;color:#263348}.jd-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .profile-form{padding:18px 20px 20px;display:grid;gap:14px}.form-grid{display:grid;grid-template-columns:1fr 180px;gap:12px}.field{display:grid;gap:7px}.field label{font-size:13px;font-weight:800;color:#263348}.hint{font-size:12px;color:var(--muted);font-weight:500}.field input,.field textarea{width:100%}.textarea-short{min-height:86px}.textarea-tall{min-height:132px}.score-blocks{display:grid;grid-template-columns:1fr 1fr;gap:12px}.config-box{border:1px solid var(--line);border-radius:8px;background:#fbfcff;padding:12px}.config-box h3{margin:0 0 8px;font-size:14px}.config-box textarea{border-color:#cfd8e6;background:#fff;font-family:Consolas,"Microsoft YaHei",monospace;line-height:1.45}.risk-row{display:grid;grid-template-columns:1fr 210px;gap:12px;align-items:end}.save-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:14px}.save-note{font-size:12px;color:var(--muted)}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.metric{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fbfcff;min-width:0}.metric b{display:block;font-size:20px;margin-top:6px}.metric span{display:block;white-space:normal}.template{border:1px solid var(--line);border-radius:8px;padding:10px;background:#fbfcff}.template h4{margin:0 0 8px;font-size:13px}.template pre{white-space:pre-wrap;margin:0;color:#344054;font-family:inherit;font-size:13px;line-height:1.55}.copy{float:right;border:0;background:#e8f0ff;color:#2455a6;border-radius:6px;padding:4px 7px;cursor:pointer}
+    .agent-card{border:1px solid #cfe0da;background:linear-gradient(180deg,#fbfffd,#f7faff);border-radius:8px;padding:12px}.agent-card h3{margin:0 0 8px;font-size:14px}.agent-card pre{white-space:pre-wrap;margin:0;color:#2b3648;font-family:inherit;font-size:13px;line-height:1.55}.agent-actions{display:flex;gap:8px;flex-wrap:wrap}.btn.ghost{background:#f3f7fb;color:#263348}.btn.small{padding:7px 10px;font-size:12px}.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.daily-list{display:grid;gap:8px}.daily-list div{border:1px solid var(--line);border-radius:8px;background:#fbfcff;padding:10px;font-size:13px}
+    .collapsible{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}.collapse-head{width:100%;border:0;background:#f8fafc;color:var(--ink);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;cursor:pointer;font:inherit;font-weight:800;text-align:left}.collapse-arrow{width:18px;height:18px;display:inline-grid;place-items:center;transition:.16s transform;color:var(--muted)}.collapsible.collapsed .collapse-arrow{transform:rotate(-90deg)}.collapse-body{padding:10px}.collapsible.collapsed .collapse-body{display:none}.collapse-body .template{border:0;background:transparent;padding:0}
+    .review-form{display:grid;gap:12px}.review-grid{display:grid;grid-template-columns:1fr 96px;gap:10px}.review-line{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center}.review-line b{font-size:13px}.review-form input[type=number]{width:100%;min-width:0}.review-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.review-summary .metric{padding:9px 10px}.review-summary b{font-size:18px}
+    .auth-screen{position:fixed;inset:0;background:linear-gradient(135deg,#172033,#126b61);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}.auth-box{width:min(440px,100%);background:#fff;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.28);padding:24px}.auth-box h2{margin:0 0 8px}.auth-tabs{display:flex;background:#f2f5f9;border-radius:8px;padding:4px;margin:16px 0}.auth-tabs button{flex:1;border:0;background:transparent;border-radius:6px;padding:9px;cursor:pointer;font-weight:800}.auth-tabs button.active{background:#fff;color:var(--brand);box-shadow:0 2px 8px rgba(22,33,52,.08)}.auth-form{display:grid;gap:10px}.role-row{display:grid;grid-template-columns:minmax(116px,.42fr) minmax(0,.58fr);gap:8px}.role-row select,.role-row input{min-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.userbar{position:relative;color:#dce7f5;font-size:13px;margin:14px 0;border:1px solid rgba(255,255,255,.12);border-radius:8px;overflow:hidden}.userbar b{color:#fff}.account-trigger{width:100%;border:0;background:transparent;color:#dce7f5;display:flex;align-items:center;gap:8px;padding:10px;cursor:pointer;text-align:left}.avatar{width:34px;height:34px;border-radius:999px;display:inline-grid;place-items:center;flex:0 0 34px;background:var(--brand);color:#fff;font-weight:900;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.avatar.large{width:58px;height:58px;flex-basis:58px;font-size:20px}.account-info{display:flex;align-items:center;gap:8px;min-width:0;flex:1}.account-text{display:grid;gap:2px;min-width:0}.account-text b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-text span{font-size:12px;color:#adc0d8}.account-arrow{margin-left:auto;transition:.16s transform}.userbar.open .account-arrow{transform:rotate(180deg)}.account-menu{display:none;border-top:1px solid rgba(255,255,255,.1);padding:8px;gap:6px;background:rgba(255,255,255,.03)}.userbar.open .account-menu{display:grid}.account-menu button{border:0;border-radius:7px;background:rgba(255,255,255,.08);color:#eef5ff;text-align:left;padding:8px 10px;cursor:pointer;font-weight:700}.account-menu button:hover{background:rgba(255,255,255,.14)}.settings-head{display:flex;align-items:center;gap:14px}.admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}.admin-table td,.admin-table th{font-size:13px}
+    .model-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.model-tools{display:grid;grid-template-columns:1fr 160px 160px auto;gap:10px;margin:12px 0}.model-list{display:grid;gap:10px}.model-card{border:1px solid var(--line);border-radius:8px;background:#fbfcff;overflow:hidden}.model-card.active{border-color:var(--brand2);box-shadow:0 0 0 2px rgba(47,111,237,.12)}.model-title{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}.model-title h3{margin:0;font-size:15px}.model-meta{display:grid;grid-template-columns:80px 1fr 80px 1fr 80px 1fr;gap:8px 10px;padding:12px 14px;font-size:13px}.model-label{color:var(--brand2);font-weight:800}.model-actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px}.badge{display:inline-flex;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;background:#eef2f7;color:#475467}.badge.ok{background:#eaf7ef;color:var(--ok)}.badge.active{background:#eef4ff;color:var(--brand2)}.model-form{display:grid;gap:10px}.model-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.model-test-result{margin:0 14px 12px;border:1px solid #b7e0c5;border-radius:8px;background:#edf8f0;color:#1f7a42;padding:10px 12px;font-size:13px;line-height:1.6}.model-test-result.bad{border-color:#f1b8c0;background:#fff1f3;color:#a12c3a}.modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;padding:24px;z-index:30}.modal-mask.open{display:flex}.modal-panel{width:min(920px,96vw);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 28px 80px rgba(0,0,0,.28)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}.modal-head h3{margin:0;font-size:17px}.modal-body{padding:18px}.icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;width:34px;height:34px;cursor:pointer;font-weight:900}
+    .toast{position:fixed;right:20px;bottom:20px;background:#172033;color:#fff;padding:12px 14px;border-radius:8px;box-shadow:var(--shadow);display:none;max-width:360px}.view{display:none}.view.active{display:block}
+    @media(max-width:980px){.app{grid-template-columns:1fr}aside{height:auto;position:relative}.layout,.profile-editor,.form-grid,.score-blocks,.risk-row,.ai-grid,.admin-grid,.model-stats,.model-tools,.model-form-grid,.model-meta,.review-grid,.review-line,.review-summary,.jd-builder,.input-row{grid-template-columns:1fr}.profile-head{display:block}.profile-stats{justify-content:flex-start;margin-top:12px}.kpis{grid-template-columns:repeat(2,1fr)}.kanban{grid-template-columns:repeat(2,1fr)}main{padding:18px}#interview .profile-editor{height:auto;min-height:0;overflow:visible}#interview .profile-editor>.card,#interviewCandidateList,#interviewPanel{overflow:visible}#interview .profile-editor>.card:first-child .toolbar,#interview .profile-head{position:static}}
+  </style>
+</head>
+<body>
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <h2>AI 招聘流程 Copilot</h2>
+    <div class="sub">请登录后使用。普通 HR 可操作招聘流程，管理者可查看账号和今日操作统计。</div>
+    <div class="auth-tabs"><button id="loginTab" class="active">登录</button><button id="registerTab">注册</button></div>
+    <div class="auth-form">
+      <input id="authUsername" placeholder="用户名" />
+      <input id="authPassword" type="password" placeholder="密码，至少 6 位" />
+      <input id="authDisplay" placeholder="显示名称（注册时可填）" style="display:none" />
+      <div class="role-row" id="roleRow" style="display:none">
+        <select id="authRole"><option value="hr">HR</option><option value="manager">管理者</option></select>
+        <input id="managerCode" placeholder="管理者注册码" />
+      </div>
+      <button class="btn primary" id="authSubmit">登录</button>
+      <div class="muted" id="authHint">管理者注册需输入注册码，默认可在配置文件中修改。</div>
+    </div>
+  </div>
+</div>
+<div class="app">
+  <aside>
+    <div class="brand">AI 招聘流程 Copilot<small>信息沉淀 · 流程跟进 · 数据分析</small></div>
+    <div class="userbar" id="userbar" style="display:none"></div>
+    <nav>
+      <button class="active" data-view="dashboard">数据看板</button>
+      <button data-view="collection">简历采集</button>
+      <button data-view="interview">智能面试</button>
+      <button data-view="training">智能培训</button>
+      <button data-view="candidates">候选人库</button>
+      <button data-view="talentPool">人才池</button>
+      <button data-view="pipeline">流程跟进</button>
+      <button data-view="profiles">岗位标准</button>
+      <button data-view="admin" id="adminNav" style="display:none">管理者</button>
+      <button data-view="modelSettings" id="modelSettingsNav" style="display:none">模型设置</button>
+      <button data-view="promptSettings" id="promptSettingsNav" style="display:none">提示词设置</button>
+      <button data-view="settings" id="settingsNav" style="display:none">系统设置</button>
+    </nav>
+  </aside>
+  <main>
+    <div class="topbar">
+      <div><h1 id="title">数据看板</h1><div class="sub">本地低成本部署，所有数据写入 data 目录</div></div>
+      <div class="actions">
+        <button class="btn primary" id="scanBtn">扫描简历</button>
+        <button class="btn blue" id="scoreAllBtn">批量评分</button>
+        <button class="btn" id="exportBtn">导出 CSV</button>
+      </div>
+    </div>
+
+    <section id="dashboard" class="view active">
+      <div class="grid kpis">
+        <div class="card kpi"><div class="label">候选人总数</div><div class="value" id="kTotal">0</div></div>
+        <div class="card kpi"><div class="label">推进中</div><div class="value" id="kActive">0</div></div>
+        <div class="card kpi"><div class="label">平均匹配分</div><div class="value" id="kScore">0</div></div>
+        <div class="card kpi"><div class="label">推荐推进率</div><div class="value" id="kPass">0%</div></div>
+      </div>
+      <div class="layout">
+        <div class="card section"><h2>招聘漏斗</h2><div id="stageBars"></div><div id="metrics" class="metrics"></div></div>
+        <div class="card section"><h2>智能提醒</h2><div id="reminders" class="detail"></div></div>
+      </div>
+      <div class="layout" style="margin-top:16px">
+        <div class="card section"><h2>岗位招聘看板</h2><div id="positionBoard" class="detail"></div></div>
+        <div class="card section"><h2>风险与人才池</h2><div id="riskBoard" class="detail"></div></div>
+      </div>
+      <div class="card section" style="margin-top:16px"><h2>AI 招聘日报</h2><div id="dailyReport" class="daily-list muted">正在生成日报...</div></div>
+    </section>
+
+    <section id="collection" class="view">
+      <div class="card section" style="margin-bottom:16px">
+        <div class="profile-head" style="margin:-18px -18px 14px">
+          <div><h2>简历采集</h2><p>每位 HR 使用自己的后台软件/API 配置，选择来源后一键采集；系统会做字段标准化、去重和文本清洗。</p></div>
+          <div class="actions">
+            <button class="btn" type="button" onclick="showCollectGuide()">配置教程</button>
+            <button class="btn primary" type="button" onclick="collectSelectedSource()">采集</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="collectSource"></select>
+          <input id="resumeFiles" type="file" multiple accept=".pdf,.docx,.txt,.md" style="display:none" onchange="uploadResumeFiles(this.files)">
+          <span class="muted" id="collectHint">来源由个人配置决定；未配置 API 时可用本地上传或粘贴文本兜底。</span>
+        </div>
+        <div id="collectGuide" class="template" style="display:none;margin-bottom:12px">
+          <h4>个人账号/API 配置教程</h4>
+          <p>1. 在本页“个人招聘软件/API”中维护自己的 BOSS、猎聘等后台软件。</p>
+          <p>2. 为每个来源填写 API 地址、请求方式、API Key、请求头和请求体。</p>
+          <p>3. API 返回建议包含 <b>files</b>、<b>texts</b> 或 <b>candidates</b> 字段，系统会统一清洗为姓名、岗位、联系方式、简历文本和来源。</p>
+          <p>4. 每位 HR 的配置只保存在自己的账号里，互不共用；遇到反爬或格式不统一时，优先使用官方/后台接口。</p>
+        </div>
+        <div id="collectionSettings"></div>
+        <div class="field">
+          <label>平台候选人文本</label>
+          <textarea id="platformResumeText" class="textarea-short" placeholder="从 BOSS/猎聘候选人详情页复制姓名、岗位、联系方式、经历等内容，粘贴后点击导入。"></textarea>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn primary" type="button" onclick="importPlatformText()">导入粘贴内容</button>
+          <button class="btn" type="button" onclick="$('#platformResumeText').value=''">清空</button>
+          <span class="muted" id="collectResult"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="interview" class="view">
+      <div class="profile-editor">
+        <div class="card section">
+          <div class="toolbar">
+            <input id="interviewSearch" placeholder="搜索候选人、岗位、技能" oninput="renderInterview()">
+            <button class="btn small" type="button" onclick="renderInterview()">刷新</button>
+          </div>
+          <div id="interviewCandidateList" class="list"></div>
+        </div>
+        <div class="card section">
+          <div class="profile-head" style="margin:-18px -18px 14px">
+            <div><h2 id="interviewTitle">智能面试</h2><p>根据候选人简历、岗位标准和评分风险，生成定制化面试方案。</p></div>
+            <div class="actions"><button class="btn primary" type="button" onclick="generateInterviewPlan()">生成面试方案</button></div>
+          </div>
+          <div class="toolbar">
+            <button class="btn small" id="resumeTabBtn" type="button" onclick="setInterviewTab('resume')">简历预览</button>
+            <button class="btn small blue" id="planTabBtn" type="button" onclick="setInterviewTab('plan')">面试方案</button>
+          </div>
+          <div id="interviewPanel" class="detail muted">请选择左侧候选人。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="training" class="view">
+      <div class="grid kpis">
+        <div class="card kpi"><div class="label">试卷数量</div><div class="value" id="tExamCount">0</div></div>
+        <div class="card kpi"><div class="label">考试记录</div><div class="value" id="tResultCount">0</div></div>
+        <div class="card kpi"><div class="label">平均得分</div><div class="value" id="tAvgScore">0</div></div>
+        <div class="card kpi"><div class="label">通过率</div><div class="value" id="tPassRate">0%</div></div>
+      </div>
+      <div class="profile-editor">
+        <div class="card section">
+          <div class="profile-head" style="margin:-18px -18px 14px">
+            <div><h2>试卷生成</h2><p>根据培训主题、岗位技能和难度生成试卷，生成后进入考试管理。</p></div>
+          </div>
+
+            <div class="field"><label>考试名称</label><input id="examTitle" placeholder="例如：调研试卷考核"></div>
+            <div class="field"><label>培训对象</label><input id="examTarget" placeholder="例如：AI算法实习生 / 新员工 / HR"></div>
+            <div class="field"><label>考试主题</label><input id="examTopic" placeholder="例如：大模型应用开发、业务知识、招聘流程"></div>
+            <div class="input-row">
+              <div class="field"><label>难度</label><select id="examDifficulty"><option>中等</option><option>基础</option><option>进阶</option><option>高阶</option></select></div>
+              <div class="field"><label>考试时长</label><input id="examDuration" type="number" value="60"></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>总分</label><input id="examTotalScore" type="number" value="100"></div>
+              <div class="field"><label>通过分</label><input id="examPassScore" type="number" value="60"></div>
+            </div>
+            <div class="field"><label>技能点</label><textarea id="examSkills" class="textarea-short" placeholder="每行或用顿号分隔：Python、沟通表达、业务理解、项目拆解"></textarea></div>
+            <div class="field"><label>补充说明</label><textarea id="examDescription" class="textarea-short" placeholder="说明考试场景、题型偏好、重点考察内容"></textarea></div>
+            <div class="actions"><button class="btn blue" type="button" onclick="generateTrainingExam()">生成试卷</button><button class="btn" type="button" onclick="clearExamForm()">清空</button></div>
+          <h2 style="margin-top:18px">试卷列表</h2>
+          <div id="trainingExamList" class="list"></div>
+        </div>
+        <div class="card section">
+          <div class="profile-head" style="margin:-18px -18px 14px">
+            <div><h2 id="trainingTitle">考试管理</h2><p>基于标准答案模板评分，复杂语义题标记人工复核，降低 AI 误判风险。</p></div>
+            <div class="actions"><button class="btn small" type="button" onclick="renderTraining()">刷新数据</button></div>
+          </div>
+          <div class="toolbar">
+            <button class="btn small blue" id="examPreviewTab" type="button" onclick="setTrainingTab('preview')">试卷预览</button>
+            <button class="btn small" id="examResultTab" type="button" onclick="setTrainingTab('results')">考试管理</button>
+          </div>
+          <div id="trainingPanel" class="detail muted">请选择左侧试卷，或先生成一份试卷。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="candidates" class="view">
+      <div class="layout">
+        <div class="card section">
+          <div class="toolbar">
+            <input id="search" placeholder="搜索姓名、岗位、技能" />
+            <select id="stageFilter"><option value="">全部阶段</option></select>
+          </div>
+          <table><thead><tr><th>姓名</th><th>岗位</th><th>阶段</th><th>匹配</th><th>来源</th><th>更新时间</th></tr></thead><tbody id="candidateRows"></tbody></table>
+        </div>
+        <div class="card section"><h2>候选人详情</h2><div id="candidateDetail" class="detail muted">选择左侧候选人查看解析、评分和追问建议。</div></div>
+      </div>
+    </section>
+
+    <section id="talentPool" class="view">
+      <div class="card section">
+        <div class="toolbar">
+          <input id="talentSearch" placeholder="搜索姓名、岗位、标签" oninput="renderTalentPool()">
+          <button class="btn small" type="button" onclick="renderTalentPool()">刷新</button>
+        </div>
+        <div id="talentPoolList" class="detail"></div>
+      </div>
+    </section>
+
+    <section id="pipeline" class="view">
+      <div class="card section"><h2>流程看板</h2><div id="kanban" class="kanban"></div></div>
+    </section>
+
+    <section id="profiles" class="view">
+      <div class="profile-editor">
+        <div class="card section"><h2>岗位列表</h2><div id="profileList" class="list"></div><button class="btn primary" id="newProfileBtn">新增岗位标准</button></div>
+        <div><div id="profileForm"></div></div>
+      </div>
+    </section>
+
+    <section id="admin" class="view">
+      <div class="card section"><h2>账号与今日操作</h2><div id="adminPanel" class="muted">仅管理者可见。</div></div>
+    </section>
+
+    <section id="modelSettings" class="view">
+      <div class="card section"><h2>模型设置</h2><div id="modelSettingsPanel" class="muted">仅管理者可配置。</div></div>
+    </section>
+
+    <section id="promptSettings" class="view">
+      <div class="card section"><h2>提示词设置</h2><div id="promptSettingsPanel" class="muted">仅管理者可配置。</div></div>
+    </section>
+
+    <section id="settings" class="view">
+      <div class="card section"><h2>系统设置</h2><div id="settingsPanel" class="muted">仅管理者可配置。</div></div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const PIPELINE = ["待沟通","已沟通","待群面","已群面","待提交群面作业","已提交群面","待最终面","已最终面","淘汰","通过"];
+let candidates=[], summary={}, profiles=[], collectionSources=[], trainingData={exams:[],results:[],summary:{}}, dailyReport=null, currentUser=null, adminOverview=null, appConfig=null, selectedCandidate=null, selectedInterviewId=null, interviewTab="plan", selectedTrainingExamId=null, trainingTab="preview", selectedProfile=null, editingModelId=null, editingCollectId=null, jdDraft=null, authMode="login";
+const $=s=>document.querySelector(s);
+function toast(msg){const t=$("#toast");if(!t){console.warn(msg);return}t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",3200)}
+function safeRender(name,fn){try{return fn()}catch(e){console.error(name,e);toast(`${name} ?????${e.message}`)}}
+function renderCurrentView(){const active=document.querySelector(".view.active")?.id||"dashboard";const map={dashboard:()=>{renderSummary();renderDaily()},collection:renderCollection,interview:renderInterview,training:renderTraining,candidates:renderCandidates,talentPool:renderTalentPool,pipeline:renderKanban,profiles:renderProfiles,admin:renderAdmin,modelSettings:renderModelSettings,promptSettings:renderPromptSettings,settings:renderSettings};safeRender(active,map[active]||renderSummary)}
+async function api(url, opts={}){const r=await fetch(url,{credentials:"same-origin",headers:{"Content-Type":"application/json"},...opts});if(!r.ok){const text=await r.text();let message=text||r.statusText;try{message=JSON.parse(text).error||message}catch(_){}const err=new Error(message);err.status=r.status;throw err}return r.headers.get("content-type")?.includes("json")?r.json():r.text()}
+async function init(){try{const me=await api("/api/me");currentUser=me.user;if(!currentUser){showAuth(true);return}showAuth(false);renderUserbar();await refresh()}catch(e){showAuth(true);toast("登录状态已失效，请重新登录")}}
+function showAuth(show){$("#authScreen").style.display=show?"flex":"none"}
+async function refresh(){
+  dailyReport=null;
+  try{
+    [candidates,summary,profiles]=await Promise.all([api("/api/candidates"),api("/api/summary"),api("/api/job-profiles")]);
+    const optional=await Promise.allSettled([api("/api/collection-sources"),api("/api/training")]);
+    collectionSources=optional[0].status==="fulfilled"?optional[0].value:(currentUser?.collection_sources||[]);
+    trainingData=optional[1].status==="fulfilled"?optional[1].value:{exams:[],results:[],summary:{}};
+    if(optional.some(x=>x.status==="rejected")) toast("部分扩展数据加载失败，候选人数据已优先显示");
+  }catch(e){
+    if(e.status===401){showAuth(true);toast("登录状态已失效，请重新登录");return}
+    toast("基础数据加载失败："+e.message);return
+  }
+  applyAppearance();
+  [["summary",()=>{renderSummary();renderDaily()}],["collection",renderCollection],["interview",renderInterview],["training",renderTraining],["candidates",renderCandidates],["talentPool",renderTalentPool],["pipeline",renderKanban],["profiles",renderProfiles]].forEach(([name,fn])=>safeRender(name,fn));
+  loadDailyReport();
+  if(currentUser?.role==="manager"){
+    const settled=await Promise.allSettled([api("/api/admin/overview"),api("/api/app-config")]);
+    if(settled[0].status==="fulfilled")adminOverview=settled[0].value;
+    if(settled[1].status==="fulfilled")appConfig=settled[1].value;
+    applyAppearance();
+    [["admin",renderAdmin],["modelSettings",renderModelSettings],["promptSettings",renderPromptSettings],["settings",renderSettings],["candidates",renderCandidates]].forEach(([name,fn])=>safeRender(name,fn));
+  }else{
+    safeRender("settings",renderSettings);
+  }
+  renderCurrentView();
+}
+function renderAll(){applyAppearance();[["summary",renderSummary],["collection",renderCollection],["interview",renderInterview],["training",renderTraining],["candidates",renderCandidates],["talentPool",renderTalentPool],["pipeline",renderKanban],["profiles",renderProfiles],["admin",renderAdmin],["modelSettings",renderModelSettings],["promptSettings",renderPromptSettings],["settings",renderSettings]].forEach(([name,fn])=>safeRender(name,fn))}
+function avatarHtml(user=currentUser,cls=""){const name=(user?.display_name||user?.username||"U").slice(0,1).toUpperCase();return `<span class="avatar ${cls}" style="background:${user?.avatar_color||"#126b61"}">${user?.avatar_url?`<img src="${esc(user.avatar_url)}">`:esc(name)}</span>`}
+function renderUserbar(){if(!currentUser)return;const u=$("#userbar");u.style.display="block";u.classList.remove("open");u.innerHTML=`<button class="account-trigger" onclick="toggleAccountMenu(event)"><span class="account-info">${avatarHtml(currentUser)}<span class="account-text"><b>${esc(currentUser.display_name||currentUser.username)}</b><span>${currentUser.role==="manager"?"管理者":"HR"} ${currentUser.title?"/ "+esc(currentUser.title):""}</span></span></span><span class="account-arrow">⌄</span></button><div class="account-menu"><button onclick="document.querySelector('[data-view=settings]').click()">个人设置</button><button onclick="switchUser()">切换用户</button><button onclick="logout()">退出登录</button></div>`;const isMgr=currentUser.role==="manager";["adminNav","modelSettingsNav","promptSettingsNav"].forEach(id=>$("#"+id).style.display=isMgr?"block":"none");$("#settingsNav").style.display="block"}
+function toggleAccountMenu(e){e?.stopPropagation();$("#userbar").classList.toggle("open")}
+function applyAppearance(){const c=appConfig||{};document.body.classList.toggle("theme-dark",c.ui_theme==="dark");document.documentElement.style.setProperty("--brand",c.ui_primary_color||"#126b61");document.body.style.fontSize=(c.ui_font_size||14)+"px";document.body.style.fontFamily=`"${c.ui_font_family||"Microsoft YaHei"}",Arial,sans-serif`}
+function renderSummary(){
+  $("#kTotal").textContent=summary.total||0; $("#kActive").textContent=summary.active||0; $("#kScore").textContent=summary.avg_score||0; $("#kPass").textContent=(summary.pass_rate||0)+"%";
+  const max=Math.max(1,...Object.values(summary.stages||{}));
+  $("#stageBars").innerHTML=PIPELINE.map(s=>`<div class="stage-row"><b>${s}</b><div class="bar"><span style="width:${((summary.stages?.[s]||0)/max)*100}%"></span></div><span>${summary.stages?.[s]||0}</span></div>`).join("");
+  const m=summary.metrics||{};
+  $("#metrics").innerHTML=[
+    ["简历通过率",m.resume_pass_rate],["群面推进率",m.screen_pass_rate],["终面邀约率",m.interview_invite_rate],
+    ["终面完成率",m.interview_show_rate],["通过转化率",m.offer_conversion_rate],["淘汰率",m.loss_rate]
+  ].map(x=>`<div class="metric"><span class="muted">${x[0]}</span><b>${x[1]||0}%</b></div>`).join("");
+  $("#reminders").innerHTML=(summary.reminders||[]).length?summary.reminders.map(r=>`<div class="mini"><b>${r.name}</b><span>${r.message}</span></div>`).join(""):`<div class="muted">暂无需要催办的候选人。</div>`;
+  renderPositionBoard();
+  renderDaily();
+}
+function renderPositionBoard(){
+  const p=$("#positionBoard"), r=$("#riskBoard"); if(!p||!r)return;
+  const positions=summary.metrics?.positions||[];
+  p.innerHTML=positions.length?`<table><thead><tr><th>岗位</th><th>总数</th><th>推进中</th><th>均分</th><th>通过率</th><th>Offer率</th><th>人才池</th></tr></thead><tbody>${positions.slice(0,8).map(x=>`<tr><td><b>${esc(x.position||"无")}</b></td><td>${x.total||0}</td><td>${x.active||0}</td><td>${x.avg_score||0}</td><td>${x.pass_rate||0}%</td><td>${x.offer_rate||0}%</td><td>${x.talent_pool||0}</td></tr>`).join("")}</tbody></table>`:`<div class="muted">暂无岗位数据。</div>`;
+  const dups=summary.duplicates||[];
+  const topLoss=(summary.metrics?.loss_rate||0)>=30?`<div class="mini"><b>淘汰率偏高</b><span>当前淘汰率 ${summary.metrics.loss_rate}% ，建议复盘岗位标准和筛选口径。</span></div>`:"";
+  const dupHtml=dups.length?`<div class="mini"><b>疑似重复候选人 ${dups.length} 组</b><span>${dups.slice(0,3).map(d=>`${d.candidates.map(c=>c.name).join(" / ")} (${d.kind})`).join("<br>")}</span></div>`:`<div class="mini"><b>重复识别</b><span>暂无明显重复候选人。</span></div>`;
+  const pool=`<div class="mini"><b>人才池</b><span>已沉淀 ${summary.talent_pool_count||0} 位可复联候选人。</span></div>`;
+  r.innerHTML=topLoss+dupHtml+pool;
+}
+function renderDaily(){if(dailyReport===null){$("#dailyReport").innerHTML=`<div class="muted">基础数据已加载，AI 招聘日报正在后台生成...</div>`;return}const r=dailyReport||{};$("#dailyReport").innerHTML=`<div><b>今日概览</b><br>${r.summary||"暂无日报"}</div><div><b>优先跟进</b><br>${(r.priorities||[]).join("<br>")||"暂无"}</div><div><b>建议动作</b><br>${(r.actions||[]).join("<br>")||"暂无"}</div><div><b>风险/卡点</b><br>${[...(r.risks||[]),...(r.bottlenecks||[]).map(x=>"卡点："+x)].join("<br>")||"暂无"}</div><div class="muted">生成方式：${r.method||"未知"}</div>`}
+async function loadDailyReport(){try{dailyReport=await api("/api/daily-report")}catch(e){dailyReport={summary:"日报生成失败："+e.message,priorities:[],actions:[],risks:[],bottlenecks:[],method:"异常"}}renderDaily()}
+function renderCollection(){const select=$("#collectSource");if(!select)return;const selected=select.value;const enabled=(collectionSources||[]).filter(s=>s.enabled!==false);select.innerHTML=enabled.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}${s.api_url?" · API":" · 手动"}</option>`).join("")||`<option value="local">本地上传</option>`;if(selected&&enabled.some(s=>s.id===selected))select.value=selected;renderCollectionSettings()}
+function renderCollectionSettings(){const box=$("#collectionSettings");if(!box)return;box.innerHTML=`<div class="config-box" style="margin-bottom:12px"><h3>个人招聘软件/API</h3><div class="hint">针对招聘网站反爬和数据格式不统一，建议配置标准化后台接口；系统会统一清洗 files、texts 或 candidates 字段，并同步到候选人库。</div><div id="collectSourceForms" class="model-list" style="margin-top:10px">${(collectionSources||[]).map((s,i)=>collectSourceForm(s,i)).join("")}</div><div class="actions" style="margin-top:10px"><button class="btn small ghost" type="button" onclick="addCollectionSource()">+ 新增后台软件</button><button class="btn small primary" type="button" onclick="saveCollectionSources()">保存个人采集配置</button></div></div>`}
+function collectSourceForm(s,i){return `<div class="model-card"><div class="model-title"><h3>${esc(s.name||s.id)}</h3><label class="hint"><input type="checkbox" id="csEnabled${i}" ${s.enabled!==false?"checked":""}> 启用</label></div><div class="model-form" style="padding:12px 14px"><div class="model-form-grid"><div class="field"><label>软件名称</label><input id="csName${i}" value="${esc(s.name||"")}"></div><div class="field"><label>来源ID</label><input id="csId${i}" value="${esc(s.id||"")}" placeholder="boss"></div></div><div class="field"><label>API 地址</label><input id="csApi${i}" value="${esc(s.api_url||"")}" placeholder="https://example.com/api/resumes"></div><div class="model-form-grid"><div class="field"><label>请求方式</label><select id="csMethod${i}"><option ${s.method!=="GET"?"selected":""}>POST</option><option ${s.method==="GET"?"selected":""}>GET</option></select></div><div class="field"><label>API Key</label><input id="csKey${i}" type="password" placeholder="${s.has_api_key?"已保存，留空不修改":"可选"}"></div></div><div class="field"><label>请求头 JSON</label><textarea id="csHeaders${i}" class="textarea-short" placeholder='{"X-Tenant":"xxx"}'>${esc(s.headers||"")}</textarea></div><div class="field"><label>请求体 JSON</label><textarea id="csBody${i}" class="textarea-short" placeholder='{"page":1,"page_size":20}'>${esc(s.request_body||"{}")}</textarea></div><div class="actions"><button class="btn small" type="button" onclick="removeCollectionSource(${i})">删除</button></div></div></div>`}
+function addCollectionSource(){collectionSources=[...(collectionSources||[]),{id:"custom_"+Date.now().toString(36),name:"新后台软件",enabled:true,api_url:"",method:"POST",headers:"",request_body:"{}"}];renderCollection()}
+function removeCollectionSource(i){collectionSources=(collectionSources||[]).filter((_,idx)=>idx!==i);renderCollection()}
+function collectCollectionSourcesFromForm(){return (collectionSources||[]).map((s,i)=>({id:$("#csId"+i).value.trim()||s.id,name:$("#csName"+i).value.trim()||s.name,enabled:$("#csEnabled"+i).checked,api_url:$("#csApi"+i).value.trim(),method:$("#csMethod"+i).value,api_key:$("#csKey"+i).value.trim(),headers:$("#csHeaders"+i).value.trim(),request_body:$("#csBody"+i).value.trim()||"{}"}))}
+async function saveCollectionSources(){const payload={username:currentUser.username,display_name:currentUser.display_name,department:currentUser.department,title:currentUser.title,phone:currentUser.phone,email:currentUser.email,avatar_url:currentUser.avatar_url,avatar_color:currentUser.avatar_color,bio:currentUser.bio,collection_sources:collectCollectionSourcesFromForm()};const r=await api("/api/account",{method:"POST",body:JSON.stringify(payload)});currentUser=r.user;collectionSources=currentUser.collection_sources||[];renderCollection();toast("个人采集配置已保存")}
+function renderAdmin(){if(!currentUser||currentUser.role!=="manager")return;const users=adminOverview?.users||[];const totalActions=users.reduce((s,u)=>s+(u.today_actions||0),0);const totalResumes=users.reduce((s,u)=>s+(u.today_resumes||0),0);$("#adminPanel").innerHTML=`<div class="admin-grid"><div class="metric"><span class="muted">账号数</span><b>${users.length}</b></div><div class="metric"><span class="muted">今日操作</span><b>${totalActions}</b></div><div class="metric"><span class="muted">今日简历相关</span><b>${totalResumes}</b></div><div class="metric"><span class="muted">管理者</span><b>${users.filter(u=>u.role==="manager").length}</b></div></div><table class="admin-table"><thead><tr><th>账号</th><th>角色</th><th>显示名</th><th>今日操作</th><th>今日处理简历</th><th>最近操作</th><th>创建时间</th></tr></thead><tbody>${users.map(u=>`<tr><td><b>${u.username}</b></td><td>${u.role==="manager"?"管理者":"普通HR"}</td><td>${u.display_name||""}</td><td>${u.today_actions||0}</td><td>${u.today_resumes||0}</td><td>${(u.last_action||"").slice(0,19).replace("T"," ")}</td><td>${(u.created_at||"").slice(0,10)}</td></tr>`).join("")}</tbody></table>`}
+function renderSettings(){if(!currentUser||currentUser.role!=="manager")return;const c=appConfig||{};const models=c.model_configs||[];const activeId=c.active_model_id;const online=models.filter(m=>m.status==="在线").length;$("#settingsPanel").innerHTML=`<div class="profile-form"><div class="config-box"><h3>模型设置</h3><div class="model-stats"><div class="metric"><span class="muted">总模型数</span><b>${models.length}</b></div><div class="metric"><span class="muted">当前启用</span><b>${models.find(m=>m.id===activeId)?.name||"无"}</b></div><div class="metric"><span class="muted">在线</span><b>${online}</b></div><div class="metric"><span class="muted">自定义</span><b>${models.filter(m=>m.source==="自定义").length}</b></div></div><div class="model-tools"><input id="modelSearch" placeholder="搜索模型名称、模型标识、API 地址..." oninput="renderModelList()"><select id="modelSourceFilter" onchange="renderModelList()"><option value="">全部来源</option><option>环境配置</option><option>自定义</option></select><select id="modelStatusFilter" onchange="renderModelList()"><option value="">全部状态</option><option>在线</option><option>失败</option><option>未测试</option></select><button class="btn primary" onclick="newModel()">+ 添加模型</button></div><div id="modelList" class="model-list"></div></div><div class="config-box"><h3 id="modelFormTitle">新增模型</h3><div class="model-form"><div class="model-form-grid"><div class="field"><label>显示名称</label><input id="modelName" placeholder="例如：qwen3.6-27b(A100)"></div><div class="field"><label>模型标识</label><input id="modelIdName" placeholder="例如：qwen36-27b"></div></div><div class="field"><label>API 地址</label><input id="modelBaseUrl" placeholder="可填 http://host:port/v1"></div><div class="model-form-grid"><div class="field"><label>API Key</label><input id="modelApiKey" type="password" placeholder="本地模型可留空，编辑时留空表示不修改"></div><div class="field"><label>环境变量名</label><input id="modelKeyEnv" value="OPENAI_API_KEY"></div></div><div class="model-form-grid"><div class="field"><label>Temperature</label><input id="modelTemp" type="number" step="0.1" value="0.2"></div><div class="field"><label>Timeout 秒</label><input id="modelTimeout" type="number" value="120"></div></div><div class="model-form-grid"><div class="field"><label>Thinking / Provider</label><input id="modelThinking" placeholder="OpenAI / DashScope / 不关闭"></div><div class="field"><label>来源</label><select id="modelSource"><option>自定义</option><option>环境配置</option></select></div></div><div class="actions"><button class="btn primary" onclick="saveModel()">保存模型</button><button class="btn" onclick="newModel()">清空表单</button></div></div></div><div class="config-box"><h3>提示词管理</h3><div class="field"><label>AI解析简历提示词</label><textarea id="cfgParsePrompt" class="textarea-tall">${c.resume_parse_prompt||""}</textarea></div><div class="field"><label>AI综合评审提示词</label><textarea id="cfgReviewPrompt" class="textarea-tall">${c.candidate_review_prompt||""}</textarea></div><div class="hint">提示词要求模型输出 JSON。字段可自定义，但建议保留分析摘要、风险点、适配度和决策建议。</div></div><div class="config-box"><h3>系统规则</h3><div class="form-grid"><div class="field"><label>启用大模型</label><select id="cfgEnabled"><option value="false">关闭，使用本地兜底</option><option value="true" ${c.llm_enabled?"selected":""}>开启，使用当前模型</option></select></div><div class="field"><label>提醒小时数</label><input id="cfgReminder" type="number" min="1" value="${c.reminder_hours||24}"></div></div><div class="field"><label>管理者注册码</label><input id="cfgManagerCode" value="${c.manager_register_code||""}"></div></div><div class="save-bar"><div class="save-note">模型配置、提示词和系统规则都会保存到 data/config/app_config.json。</div><button class="btn primary" onclick="saveSettings()">保存系统设置</button></div></div>`;renderModelList();if(editingModelId){fillModelForm(models.find(m=>m.id===editingModelId))}}
+function candidateSearchSource(c){
+  return [
+    c.name,c.position,c.phone,c.email,c.source,c.education,c.job_intention,
+    ...(Array.isArray(c.skills)?c.skills:[]),
+    ...(Array.isArray(c.talent_tags)?c.talent_tags:[])
+  ].filter(Boolean).join(" ").toLowerCase()
+}
+function candidateSearchRank(c,q,index){
+  const name=(c.name||"").toLowerCase(), position=(c.position||"").toLowerCase();
+  const skills=(Array.isArray(c.skills)?c.skills.join(" "):"").toLowerCase();
+  if(name===q)return index-5000;
+  if(name.startsWith(q))return index-4000;
+  if(name.includes(q))return index-3000;
+  if(position.includes(q))return index-2000;
+  if(skills.includes(q))return index-1000;
+  return index;
+}
+function renderCandidates(){
+  const sf=$("#stageFilter"); if(sf.children.length===1) PIPELINE.forEach(s=>sf.insertAdjacentHTML("beforeend",`<option value="${s}">${s}</option>`));
+  const q=$("#search").value.trim().toLowerCase(), st=sf.value;
+  const rows=candidates
+    .map((c,i)=>({c,i}))
+    .filter(x=>(!st||x.c.stage===st)&&(!q||candidateSearchSource(x.c).includes(q)))
+    .sort((a,b)=>q?candidateSearchRank(a.c,q,a.i)-candidateSearchRank(b.c,q,b.i):a.i-b.i)
+    .map(x=>x.c);
+  $("#candidateRows").innerHTML=rows.map(c=>`<tr onclick="selectCandidate('${c.id}')"><td><b>${c.name||""}</b><div class="muted">${c.phone||c.email||""}</div></td><td>${c.position||""}</td><td>${pill(c.stage)}</td><td>${scorePill(c.match?.score)}</td><td>${c.source||""}</td><td>${(c.updated_at||"").slice(0,16).replace("T"," ")}</td></tr>`).join("");
+  if(rows.length&&(!selectedCandidate||!rows.some(c=>c.id===selectedCandidate.id))){
+    selectedCandidate=rows[0];
+  }
+  if(rows.length&&selectedCandidate) renderCandidateDetail(selectedCandidate);
+  if(!rows.length) $("#candidateDetail").innerHTML=`<div class="muted">没有匹配“${esc(q)}”的候选人。请尝试输入姓名、岗位或技能关键词。</div>`;
+}
+function renderTalentPool(){
+  const box=$("#talentPoolList"); if(!box)return;
+  const q=($("#talentSearch")?.value||"").trim().toLowerCase();
+  const rows=candidates.filter(c=>c.talent_pool&&(!q||JSON.stringify(c).toLowerCase().includes(q)));
+  box.innerHTML=rows.length?`<table><thead><tr><th>姓名</th><th>岗位</th><th>标签</th><th>最近阶段</th><th>下次复联</th><th>备注</th></tr></thead><tbody>${rows.map(c=>`<tr onclick="document.querySelector('[data-view=candidates]').click();selectCandidate('${c.id}')"><td><b>${esc(c.name||"")}</b><div class="muted">${esc(c.phone||c.email||"")}</div></td><td>${esc(c.position||"")}</td><td>${arr(c.talent_tags).map(x=>`<span class="chip">${esc(x)}</span>`).join(" ")}</td><td>${pill(c.stage)}</td><td>${esc(c.next_follow_time||"")}</td><td>${esc((c.notes||"").slice(0,40))}</td></tr>`).join("")}</tbody></table>`:`<div class="muted">暂无人才池候选人。可在候选人详情里勾选“加入人才池”。</div>`;
+}
+function renderInterview(){
+  const list=$("#interviewCandidateList"); if(!list)return;
+  const q=($("#interviewSearch")?.value||"").trim().toLowerCase();
+  const rows=candidates.filter(c=>!q||JSON.stringify(c).toLowerCase().includes(q));
+  if(!selectedInterviewId&&rows[0]) selectedInterviewId=rows[0].id;
+  list.innerHTML=rows.map(c=>`<button class="${selectedInterviewId===c.id?"active":""}" onclick="selectInterviewCandidate('${c.id}')"><b>${esc(c.name||"未命名")}</b><div class="muted">${esc(c.position||"无")} · ${c.match?.score??"未评分"}分</div><div class="hint">${esc((c.education||"").slice(0,18))} ${esc((c.skills||[]).slice(0,3).join("、"))}</div><div class="actions" style="margin-top:8px"><span class="pill ${c.interview_plan?'ok':'warn'}">${c.interview_plan?'已生成':'待生成'}</span></div></button>`).join("")||"<div class='muted'>暂无候选人。</div>";
+  renderInterviewPanel();
+}
+function selectInterviewCandidate(id){selectedInterviewId=id;renderInterview()}
+function setInterviewTab(tab){interviewTab=tab;renderInterviewPanel()}
+function currentInterviewCandidate(){return candidates.find(c=>c.id===selectedInterviewId)}
+function renderInterviewPanel(){
+  const c=currentInterviewCandidate(), panel=$("#interviewPanel"); if(!panel)return;
+  $("#resumeTabBtn")?.classList.toggle("blue",interviewTab==="resume");
+  $("#planTabBtn")?.classList.toggle("blue",interviewTab==="plan");
+  if(!c){panel.innerHTML="请选择左侧候选人。";return}
+  $("#interviewTitle").textContent=`${c.name||"候选人"} · 智能面试`;
+  panel.classList.remove("muted");
+  panel.innerHTML=interviewTab==="resume"?renderResumePreview(c):renderInterviewPlan(c.interview_plan);
+}
+function renderResumePreview(c){const skills=(c.skills||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("");return `<div class="template"><h4>${esc(c.name||"候选人")} - ${esc(c.position||"无")}</h4><p><b>阶段：</b>${esc(c.stage||"")}　<b>匹配：</b>${c.match?.score??"未评分"}　<b>来源：</b>${esc(c.source||"")}</p><p><b>联系方式：</b>${esc(c.phone||"")} ${esc(c.email||"")}</p><p><b>教育：</b>${esc(c.education||"无")}</p><p><b>技能：</b></p><div class="chips">${skills||"<span class='muted'>未识别</span>"}</div><h4 style="margin-top:12px">简历原文</h4><pre>${esc((c.resume_text||"暂无简历文本").slice(0,9000))}</pre></div>`}
+function renderInterviewPlan(plan){if(!plan)return `<div class="muted">尚未生成面试方案。点击右上角“生成面试方案”，系统会根据该候选人的简历、岗位标准、匹配分、风险点生成定制问题。</div>`;const sections=(plan.question_sections||[]).map(sec=>`<div class="template" style="margin-top:10px"><h4>${esc(sec.title||"问题模块")}</h4><p class="muted">${esc(sec.purpose||"")}</p><ol>${(sec.questions||[]).map(q=>`<li>${esc(q)}</li>`).join("")}</ol></div>`).join("");const rubric=(plan.scoring_rubric||[]).map(r=>`<tr><td>${esc(r.dimension||"")}</td><td>${esc(r.weight??"")}</td><td>${esc(r.pass_signal||"")}</td></tr>`).join("");const schedule=(plan.schedule||[]).map(x=>`<span class="chip">${esc(x.part||"环节")} ${esc(x.minutes??"")}min</span>`).join("");return `<div class="detail"><div class="template"><h4>${esc(plan.method||"智能面试方案")}</h4><p><b>面试目标：</b>${esc(plan.interview_goal||"")}</p><p><b>候选人摘要：</b>${esc(plan.candidate_summary||"")}</p><p><b>重点关注：</b>${arr(plan.focus_areas).map(esc).join("；")||"无"}</p><div class="chips">${schedule}</div></div>${sections}<div class="template"><h4>项目深挖与风险验证</h4><p><b>项目深挖：</b>${arr(plan.project_deep_dive).map(esc).join("；")||"无"}</p><p><b>风险验证：</b>${arr(plan.risk_checks).map(esc).join("；")||"无"}</p></div><div class="template"><h4>评分 Rubric</h4><table><thead><tr><th>维度</th><th>权重</th><th>通过信号</th></tr></thead><tbody>${rubric}</tbody></table></div><div class="template"><h4>决策信号</h4><pre>${esc(pretty(plan.decision_signals||{}))}</pre><p><b>面试官记录：</b>${esc(plan.interviewer_notes||"")}</p></div></div>`}
+function renderTraining(){
+  const list=$("#trainingExamList"); if(!list)return;
+  const exams=trainingData.exams||[], results=trainingData.results||[], s=trainingData.summary||{};
+  $("#tExamCount").textContent=s.exam_count||exams.length||0; $("#tResultCount").textContent=s.result_count||results.length||0; $("#tAvgScore").textContent=s.avg_score||0; $("#tPassRate").textContent=(s.pass_rate||0)+"%";
+  if(!selectedTrainingExamId&&exams[0]) selectedTrainingExamId=exams[0].id;
+  list.innerHTML=exams.map(e=>`<button class="${selectedTrainingExamId===e.id?"active":""}" onclick="selectTrainingExam('${esc(e.id)}')"><b>${esc(e.title||"未命名试卷")}</b><div class="muted">${esc(e.topic||"通用培训")} · ${esc(e.difficulty||"中等")} · ${esc(e.total_score||100)}分</div><div class="hint">${esc((e.created_at||"").slice(0,16).replace("T"," "))} · ${esc(e.method||"")}</div></button>`).join("")||"<div class='muted'>暂无试卷，请先生成。</div>";
+  renderTrainingPanel();
+}
+function selectTrainingExam(id){selectedTrainingExamId=id;renderTraining()}
+function setTrainingTab(tab){trainingTab=tab;renderTrainingPanel()}
+function currentTrainingExam(){return (trainingData.exams||[]).find(e=>e.id===selectedTrainingExamId)}
+function renderTrainingPanel(){
+  const panel=$("#trainingPanel"); if(!panel)return;
+  $("#examPreviewTab")?.classList.toggle("blue",trainingTab==="preview");
+  $("#examResultTab")?.classList.toggle("blue",trainingTab==="results");
+  const exam=currentTrainingExam();
+  if(!exam){panel.innerHTML="请选择左侧试卷，或先生成一份试卷。";return}
+  $("#trainingTitle").textContent=`${exam.title||"考试"} · 考试管理`;
+  panel.classList.remove("muted");
+  panel.innerHTML=trainingTab==="preview"?renderExamPreview(exam):renderExamResults(exam);
+}
+function renderExamPreview(exam){
+  const sections=(exam.sections||[]).map(x=>`<span class="chip">${esc(x.name||"模块")} ${esc(x.score??"")}分</span>`).join("");
+  const qs=(exam.questions||[]).map((q,i)=>`<div class="template"><h4>${i+1}. ${esc(q.type||"题目")} · ${esc(q.score??"")}分</h4><p>${esc(q.stem||"")}</p>${(q.options||[]).length?`<ol type="A">${q.options.map(o=>`<li>${esc(o)}</li>`).join("")}</ol>`:""}<p class="muted"><b>参考答案：</b>${esc(q.answer||"")}</p><p class="muted"><b>解析：</b>${esc(q.analysis||"")}</p></div>`).join("");
+  return `<div class="detail"><div class="template"><h4>${esc(exam.title||"考试")}</h4><p><b>对象：</b>${esc(exam.target||"")}　<b>主题：</b>${esc(exam.topic||"")}　<b>难度：</b>${esc(exam.difficulty||"")}</p><p><b>时长：</b>${esc(exam.duration||60)} 分钟　<b>总分：</b>${esc(exam.total_score||100)}　<b>通过分：</b>${esc(exam.pass_score||60)}</p><p>${esc(exam.description||"")}</p><div class="chips">${sections}</div></div>${qs}<div class="template"><h4>评分规则</h4><ol>${arr(exam.scoring_rules).map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div></div>`;
+}
+function renderExamResults(exam){
+  const rows=(trainingData.results||[]).filter(r=>r.exam_id===exam.id);
+  return `<div class="detail"><div class="template"><h4>录入考试结果</h4><div class="model-form-grid"><div class="field"><label>考生姓名</label><input id="resultStudent" placeholder="张三"></div><div class="field"><label>部门</label><input id="resultDept" placeholder="技术部"></div><div class="field"><label>得分</label><input id="resultScore" type="number" min="0" max="${esc(exam.total_score||100)}"></div><div class="field"><label>状态</label><select id="resultStatus"><option>自动判断</option><option>通过</option><option>未通过</option><option>缺考</option><option>待补考</option></select></div></div><div class="field" style="margin-top:10px"><label>答题详情/备注</label><textarea id="resultComment" class="textarea-short" placeholder="可粘贴考生答案、答题详情、阅卷意见或补考安排"></textarea></div><div class="actions" style="margin-top:10px"><button class="btn blue" onclick="gradeTrainingResult()">AI/规则评分并保存</button><button class="btn primary" onclick="saveTrainingResult()">手动保存成绩</button></div><div id="gradeResult" class="muted" style="margin-top:10px">标准答案模板 + 关键场景人工复核；复杂语义题会提示需要复核。</div></div><table><thead><tr><th>考生</th><th>部门</th><th>得分</th><th>状态</th><th>提交时间</th><th>评分方式</th><th>备注</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(r.student_name||"")}</b></td><td>${esc(r.department||"")}</td><td>${esc(r.score||0)} / ${esc(r.total_score||exam.total_score||100)}</td><td>${pill(r.status)}</td><td>${esc((r.submitted_at||"").slice(0,16).replace("T"," "))}</td><td>${esc(r.grading?.method||"手动录入")}</td><td>${esc(r.comment||"")}</td></tr>`).join("")||"<tr><td colspan='7' class='muted'>暂无考试记录。</td></tr>"}</tbody></table></div>`;
+}
+function pill(v){let cls=v==="淘汰"||v==="未通过"?"bad":(v==="通过"?"ok":"warn");return `<span class="pill ${cls}">${v||"未同步"}</span>`}
+function scorePill(v){if(v===undefined||v==="")return '<span class="muted">未评分</span>';let cls=v>=80?"ok":(v>=60?"warn":"bad");return `<span class="pill ${cls}">${v}</span>`}
+function selectCandidate(id){selectedCandidate=candidates.find(c=>c.id===id);renderCandidateDetail(selectedCandidate)}
+function renderCandidateDetail(c){
+  const skills=(c.skills||[]).map(s=>`<span class="chip">${s}</span>`).join("");
+  const m=c.match||{};
+  $("#candidateDetail").innerHTML=`<div class="row"><b>姓名</b><span>${c.name||""}</span></div><div class="row"><b>岗位</b><span>${c.position||""}</span></div><div class="row"><b>联系方式</b><span>${c.phone||""} ${c.email||""}</span></div><div class="row"><b>解析状态</b><span>${parseStatusPill(c)}</span></div><div class="row"><b>阶段</b><span><select id="stageSelect" onchange="syncStageSelects('stageSelect')">${PIPELINE.map(s=>`<option ${s===c.stage?"selected":""}>${s}</option>`).join("")}</select></span></div><div class="row"><b>技能</b><div class="chips">${skills||"<span class='muted'>未识别</span>"}</div></div><div class="row"><b>匹配分</b><span>${scorePill(m.score)} ${m.suggestion||""}</span></div>${renderScoreDimensions(m)}${renderCandidateProfile(c)}<div class="row"><b>优势</b><span>${(m.strengths||[]).join("<br>")||"未评分"}</span></div><div class="row"><b>风险点</b><span>${(m.risks||[]).join("、")||"暂无"}</span></div><div class="row"><b>追问</b><span>${(m.questions||[]).join("<br>")||"暂无"}</span></div>${renderWorkflowState(c)}${renderManualReview(c)}${renderInterviewerPanel(c)}<div class="agent-card"><h3>招聘智能体</h3><div class="agent-actions"><button class="btn small primary" onclick="analyzeResume('${c.id}')">AI解析简历</button><button class="btn small blue" onclick="agentReview('${c.id}')">AI综合评审</button><button class="btn small ghost" onclick="loadNextAction('${c.id}')">推荐下一步</button><button class="btn small ghost" onclick="applyNextAction('${c.id}')">应用推荐下一步</button></div><div id="agentResult" style="margin-top:10px">${renderAgentState(c)}</div></div><div class="agent-card"><h3>群面/作业智能评分</h3><textarea id="groupText" placeholder="粘贴群面记录、面试官评价或群面作业内容"></textarea><div class="actions"><button class="btn small primary" onclick="groupScore('${c.id}')">AI群面评分并自动同步</button></div><div id="groupResult">${renderGroupState(c)}</div></div><div><b>企业微信话术</b><div id="templates" class="detail muted">正在生成话术...</div></div>${renderCommunicationPanel(c)}<div><b>HR备注</b><textarea id="notes">${c.notes||""}</textarea></div><div class="actions"><button class="btn primary" onclick="scoreOne('${c.id}')">规则重新评分</button><button class="btn blue" onclick="agentReview('${c.id}')">AI综合评审</button><button class="btn" onclick="saveDetail('${c.id}')">保存画像、沟通、状态和评分</button></div>`;
+  loadTemplates(c.id);
+}
+function parseStatusPill(c){if(c.parse_status==="filename_only")return `<span class="pill warn" title="${esc(c.parse_error||"")}">仅文件名导入，待解析</span>`;return `<span class="pill ok">已解析</span>`}
+function listText(v){return Array.isArray(v)?v.join("、"):(v||"")}
+function renderCandidateProfile(c){return `<div class="agent-card"><h3>候选人画像与人才池</h3><div class="model-form-grid"><div class="field"><label>求职意向</label><input id="jobIntention" value="${esc(c.job_intention||"")}" placeholder="岗位方向、行业偏好"></div><div class="field"><label>薪资期望</label><input id="salaryExpectation" value="${esc(c.salary_expectation||c.expected_salary||"")}" placeholder="例如 15K / 200元天"></div><div class="field"><label>可到岗时间</label><input id="availability" value="${esc(c.availability||c.arrival_time||"")}" placeholder="例如 1周内 / 2026-07-15"></div><div class="field"><label>地点接受度</label><input id="locationPreference" value="${esc(c.location_preference||"")}" placeholder="城市、远程、通勤要求"></div><div class="field"><label>稳定性风险</label><input id="stabilityRisk" value="${esc(c.stability_risk||"")}" placeholder="空窗、频繁跳槽、到岗不确定等"></div><div class="field"><label>负责人</label><input id="candidateOwner" value="${esc(c.owner||currentUser?.display_name||currentUser?.username||"")}" placeholder="负责 HR"></div><div class="field"><label>下次跟进</label><input id="nextFollowTime" value="${esc(c.next_follow_time||"")}" placeholder="YYYY-MM-DD HH:mm"></div><div class="field"><label>跟进优先级</label><select id="followPriority"><option ${sel(c.follow_up_priority,"普通")}>普通</option><option ${sel(c.follow_up_priority,"高")}>高</option><option ${sel(c.follow_up_priority,"低")}>低</option></select></div></div><label class="hint" style="margin-top:8px"><input id="talentPool" type="checkbox" ${c.talent_pool?"checked":""}> 加入人才池，可后续复联</label><div class="field" style="margin-top:8px"><label>人才池标签</label><input id="talentTags" value="${esc(listText(c.talent_tags))}" placeholder="算法、前端、校招、可复联，用顿号或逗号分隔"></div></div>`}
+function renderCommunicationPanel(c){const logs=c.communication_logs||[];return `<div class="agent-card"><h3>沟通记录与跟进</h3><div class="model-form-grid"><div class="field"><label>沟通方式</label><select id="commType"><option>电话</option><option>微信</option><option>邮件</option><option>面谈</option><option>系统备注</option></select></div><div class="field"><label>沟通结果</label><input id="commResult" placeholder="已约面 / 待回复 / 不合适 / 需复联"></div></div><textarea id="commContent" class="textarea-short" placeholder="记录候选人反馈、关键顾虑、薪资/地点/到岗信息"></textarea><div class="actions" style="margin-top:8px"><button class="btn small primary" type="button" onclick="addCommunicationLog()">添加沟通记录</button></div><div id="commTimeline" class="detail" style="margin-top:10px">${logs.length?logs.map(l=>`<div class="mini"><b>${esc(l.time||"")} · ${esc(l.type||"沟通")}</b><span>${esc(l.result||"")}<br>${esc(l.content||"")}</span></div>`).join(""):"<div class='muted'>暂无沟通记录。</div>"}</div></div>`}
+function renderInterviewerPanel(c){const items=c.interviewer_reviews||[];return `<div class="agent-card"><h3>面试官协同评价</h3><div class="model-form-grid"><div class="field"><label>面试官</label><input id="reviewerName" placeholder="面试官姓名"></div><div class="field"><label>评分</label><input id="reviewerScore" type="number" min="0" max="100" placeholder="0-100"></div></div><textarea id="reviewerComment" class="textarea-short" placeholder="面试评价、通过建议、关注风险"></textarea><div class="actions" style="margin-top:8px"><button class="btn small primary" type="button" onclick="addInterviewerReview()">添加面试官评价</button></div><div id="reviewerList" class="detail" style="margin-top:10px">${items.length?items.map(x=>`<div class="mini"><b>${esc(x.reviewer||"面试官")} · ${esc(x.score??"未评分")}</b><span>${esc(x.comment||"")}<br>${esc((x.time||"").slice(0,16).replace("T"," "))}</span></div>`).join(""):"<div class='muted'>暂无面试官评价。</div>"}</div></div>`}
+function renderScoreDimensions(m){const dims=m.dimensions||[];if(!dims.length)return "";return `<div class="agent-card"><h3>多维度评分依据</h3><div class="metrics">${dims.map(d=>`<div class="metric"><span class="muted">${esc(d.name)}</span><b>${esc(d.score??0)}</b><small>${arr(d.evidence).map(esc).join("、")||"暂无证据"}</small></div>`).join("")}</div><div class="hint">评分由岗位标准权重、候选人简历信号和风险关键词共同生成；启用 AI 评审后可叠加多指标复核。</div></div>`}
+function renderManualReview(c){
+  const g=c.group_interview||{}, a=c.assignment||{}, h=c.hr_interview||{};
+  return `<div class="agent-card"><h3>HR人工评分与状态流转</h3><div class="review-form"><label class="hint"><input id="autoWorkflow" type="checkbox" checked> 保存后按评分和环节状态自动同步流程</label><div class="review-line"><b>当前阶段</b><select id="stageQuickSelect" onchange="syncStageSelects('stageQuickSelect')">${PIPELINE.map(s=>`<option ${s===c.stage?"selected":""}>${s}</option>`).join("")}</select></div><div class="review-line"><b>最终结果</b><select id="finalResult"><option ${sel(c.final_result,"待定")}>待定</option><option ${sel(c.final_result,"通过")}>通过</option><option ${sel(c.final_result,"淘汰")}>淘汰</option><option ${sel(c.final_result,"候补")}>候补</option></select></div>${manualReviewRow("group","群面",g)}${manualReviewRow("assignment","作业",a)}${manualReviewRow("hr","HR面",h)}<div class="review-summary"><div class="metric"><span class="muted">简历匹配</span><b>${mScore(c.match?.score)}</b></div><div class="metric"><span class="muted">流程均分</span><b id="manualAvg">${manualAverage(c)}</b></div><div class="metric"><span class="muted">当前结论</span><b>${c.final_result||"待定"}</b></div></div><div class="hint">人工分数建议填 0-100；点击保存后会写入候选人档案、数据看板和 CSV 导出。</div></div></div>`;
+}
+function renderWorkflowState(c){
+  const w=c.workflow||{}, n=w.next_action||{}, rules=w.rules||appConfig?.workflow_rules||{};
+  const ruleText=[["简历线",rules.resume_pass_score],["群面线",rules.group_pass_score],["作业线",rules.assignment_pass_score],["HR线",rules.hr_pass_score]].filter(x=>x[1]!==undefined).map(x=>`${x[0]} ${x[1]}`).join(" / ");
+  return `<div class="agent-card"><h3>自动化安排</h3><div class="template"><p><b>下一步：</b>${n.action||"等待流程动作"}</p><p><b>原因：</b>${w.last_reason||n.reason||"尚未触发自动化规则"}</p><p><b>建议截止：</b>${n.due_at?(n.due_at||"").slice(0,16).replace("T"," "):"暂无"}</p><p><b>最近触发：</b>${w.last_trigger||"暂无"}</p><p><b>当前分数线：</b>${ruleText||"使用默认规则"}</p></div></div>`;
+}
+function syncStageSelects(sourceId){const v=$("#"+sourceId)?.value;["stageSelect","stageQuickSelect"].forEach(id=>{if(id!==sourceId&&$("#"+id))$("#"+id).value=v})}
+function manualReviewRow(prefix,label,data={}){
+  return `<div class="review-line"><b>${label}</b><div class="review-grid"><select id="${prefix}Status"><option ${sel(data.status,"待定")}>待定</option><option ${sel(data.status,"待安排")}>待安排</option><option ${sel(data.status,"已安排")}>已安排</option><option ${sel(data.status,"已完成")}>已完成</option><option ${sel(data.status,"已评分")}>已评分</option><option ${sel(data.status,"通过")}>通过</option><option ${sel(data.status,"淘汰")}>淘汰</option><option ${sel(data.status,"缺席")}>缺席</option></select><input id="${prefix}Score" type="number" min="0" max="100" step="1" value="${esc(data.score??"")}" placeholder="分数"></div></div>`;
+}
+function sel(value,option){return String(value||"")===option?"selected":""}
+function mScore(v){return v===undefined||v===""?"未评分":v}
+function manualAverage(c){const vals=[c.group_interview?.score,c.assignment?.score,c.hr_interview?.score].map(Number).filter(v=>Number.isFinite(v));return vals.length?Math.round(vals.reduce((s,v)=>s+v,0)/vals.length):"未评分"}
+function splitTags(v){return String(v||"").split(/[、,，\n]+/).map(x=>x.trim()).filter(Boolean)}
+function addCommunicationLog(){if(!selectedCandidate)return;const content=$("#commContent").value.trim(), result=$("#commResult").value.trim();if(!content&&!result){toast("请先填写沟通内容");return}selectedCandidate.communication_logs=[...(selectedCandidate.communication_logs||[]),{time:new Date().toISOString(),type:$("#commType").value,result,content,actor:currentUser?.display_name||currentUser?.username||""}];renderCandidateDetail(selectedCandidate);toast("沟通记录已加入，记得保存")}
+function addInterviewerReview(){if(!selectedCandidate)return;const reviewer=$("#reviewerName").value.trim(), comment=$("#reviewerComment").value.trim(), score=scoreValue("#reviewerScore");if(!reviewer&&!comment){toast("请填写面试官或评价内容");return}selectedCandidate.interviewer_reviews=[...(selectedCandidate.interviewer_reviews||[]),{time:new Date().toISOString(),reviewer:reviewer||"面试官",score,comment}];renderCandidateDetail(selectedCandidate);toast("面试官评价已加入，记得保存")}
+function renderAgentState(c){const parts=[];if(c.ai_parse)parts.push(renderParseAnalysis(c.ai_parse));if(c.agent_review)parts.push(renderReviewAnalysis(c.agent_review));return parts.join("")||"<span class='muted'>点击上方按钮，让智能体解析简历、评审候选人并推荐下一步。</span>"}
+function collapsibleSection(title,body){return `<div class="collapsible"><button class="collapse-head" type="button" onclick="toggleCollapse(this)" aria-expanded="true"><span>${title}</span><span class="collapse-arrow">⌄</span></button><div class="collapse-body">${body}</div></div>`}
+function toggleCollapse(btn){const box=btn.closest(".collapsible");const collapsed=box.classList.toggle("collapsed");btn.setAttribute("aria-expanded",String(!collapsed))}
+function renderParseAnalysis(p){return collapsibleSection("LLM结构化解析",`<div class="template"><h4>${p.method||"AI解析"}</h4><p>${p.analysis_summary||p.summary||p.conclusion||"暂无分析摘要"}</p><p><b>教育分析：</b>${p.education_analysis||"无"}</p><p><b>技能分析：</b>${p.skill_analysis||"无"}</p><p><b>项目分析：</b>${p.project_analysis||"无"}</p><p><b>经历分析：</b>${p.experience_analysis||"无"}</p><p><b>风险点：</b>${arr(p.risk_points).join("、")||"无"}</p><p><b>建议追问：</b>${arr(p.follow_up_questions||p.questions).join("；")||"无"}</p><p><b>结论：</b>${p.conclusion||"无"}</p></div>`)}
+function renderReviewAnalysis(r){const score=r.suitability_score??r.score??0;return collapsibleSection("岗位适配度评审",`<div class="template"><h4>${r.method||"AI评审"} · ${r.suitability_level||""}</h4><p><b>适配度：</b>${score} / 100</p><p><b>适配结论：</b>${r.fit_summary||r.reason||"无"}</p><p><b>匹配证据：</b>${arr(r.matched_evidence||r.strengths).join("；")||"无"}</p><p><b>差距/风险：</b>${arr(r.gap_risks||r.risks).join("；")||"无"}</p><p><b>建议追问：</b>${arr(r.questions).join("；")||"无"}</p><p><b>决策建议：</b>${r.decision||"无"}</p></div>`)}
+function arr(v){return Array.isArray(v)?v:(v?[v]:[])}
+function renderGroupState(c){return c.group_ai_review?`<pre>${pretty(c.group_ai_review)}</pre>`:"<span class='muted'>输入群面记录后可自动给出维度分、总分和推进建议。</span>"}
+function pretty(v){return JSON.stringify(v,null,2)}
+async function loadTemplates(id){const t=await api(`/api/candidates/${id}/templates`);$("#templates").innerHTML=Object.entries(t).map(([k,v])=>`<div class="template"><button class="copy" onclick="copyText(this)">复制</button><h4>${k}</h4><pre>${v}</pre></div>`).join("")}
+function copyText(btn){const text=btn.parentElement.querySelector("pre").textContent;navigator.clipboard?.writeText(text);toast("话术已复制")}
+async function saveDetail(id){
+  const stage=$("#stageQuickSelect")?.value||$("#stageSelect").value;
+  const payload={
+    stage,
+    notes:$("#notes").value,
+    final_result:$("#finalResult")?.value||"待定",
+    job_intention:$("#jobIntention")?.value.trim()||"",
+    salary_expectation:$("#salaryExpectation")?.value.trim()||"",
+    availability:$("#availability")?.value.trim()||"",
+    location_preference:$("#locationPreference")?.value.trim()||"",
+    stability_risk:$("#stabilityRisk")?.value.trim()||"",
+    owner:$("#candidateOwner")?.value.trim()||"",
+    next_follow_time:$("#nextFollowTime")?.value.trim()||"",
+    follow_up_priority:$("#followPriority")?.value||"普通",
+    talent_pool:$("#talentPool")?$("#talentPool").checked:false,
+    talent_tags:splitTags($("#talentTags")?.value||""),
+    communication_logs:selectedCandidate?.communication_logs||[],
+    interviewer_reviews:selectedCandidate?.interviewer_reviews||[],
+    group_interview:{status:$("#groupStatus")?.value||"待定",score:scoreValue("#groupScore")},
+    assignment:{status:$("#assignmentStatus")?.value||"待定",score:scoreValue("#assignmentScore")},
+    hr_interview:{status:$("#hrStatus")?.value||"待定",score:scoreValue("#hrScore")},
+    auto_workflow:$("#autoWorkflow")?$("#autoWorkflow").checked:false
+  };
+  await api(`/api/candidates/${id}`,{method:"POST",body:JSON.stringify(payload)});
+  toast("已保存状态、HR评分和备注");
+  await refresh();
+  selectedCandidate=candidates.find(c=>c.id===id);
+  renderCandidateDetail(selectedCandidate);
+}
+function scoreValue(selector){const raw=$(selector)?.value;if(raw===""||raw===undefined)return "";const n=Number(raw);return Number.isFinite(n)?Math.max(0,Math.min(100,Math.round(n))):""}
+async function scoreOne(id){await api(`/api/candidates/${id}/score`,{method:"POST",body:JSON.stringify({profile_id:selectedProfile?.id,auto_workflow:true})});toast("评分已更新，流程已自动检查");await refresh();selectedCandidate=candidates.find(c=>c.id===id);renderCandidateDetail(selectedCandidate)}
+async function analyzeResume(id){$("#agentResult").innerHTML="<span class='muted'>AI 正在解析简历...</span>";await api(`/api/candidates/${id}/analyze-resume`,{method:"POST",body:JSON.stringify({profile_id:selectedProfile?.id})});toast("AI简历解析完成");await refresh();selectedCandidate=candidates.find(c=>c.id===id);renderCandidateDetail(selectedCandidate)}
+async function agentReview(id){$("#agentResult").innerHTML="<span class='muted'>AI 正在综合评审...</span>";await api(`/api/candidates/${id}/agent-review`,{method:"POST",body:JSON.stringify({profile_id:selectedProfile?.id,auto_workflow:true})});toast("AI综合评审完成，流程已自动检查");await refresh();selectedCandidate=candidates.find(c=>c.id===id);renderCandidateDetail(selectedCandidate)}
+async function generateInterviewPlan(){const c=currentInterviewCandidate();if(!c){toast("请先选择候选人");return}$("#interviewPanel").innerHTML="<span class='muted'>AI 正在生成面试方案...</span>";const updated=await api(`/api/candidates/${c.id}/interview-plan`,{method:"POST",body:JSON.stringify({profile_id:selectedProfile?.id})});toast("面试方案已生成");await refresh();selectedInterviewId=updated.id;interviewTab="plan";renderInterview()}
+function examPayload(){return {title:$("#examTitle").value.trim(),target:$("#examTarget").value.trim(),topic:$("#examTopic").value.trim(),difficulty:$("#examDifficulty").value,duration:Number($("#examDuration").value||60),total_score:Number($("#examTotalScore").value||100),pass_score:Number($("#examPassScore").value||60),skills:$("#examSkills").value.trim(),description:$("#examDescription").value.trim()}}
+function clearExamForm(){["examTitle","examTarget","examTopic","examSkills","examDescription"].forEach(id=>$("#"+id).value="");$("#examDifficulty").value="中等";$("#examDuration").value=60;$("#examTotalScore").value=100;$("#examPassScore").value=60}
+async function generateTrainingExam(){const payload=examPayload();if(!payload.title&&!payload.topic){toast("请先填写考试名称或考试主题");return}$("#trainingPanel").innerHTML="<span class='muted'>AI 正在生成试卷...</span>";const exam=await api("/api/training/exams/generate",{method:"POST",body:JSON.stringify(payload)});selectedTrainingExamId=exam.id;trainingTab="preview";toast("试卷已生成");await refresh()}
+async function saveTrainingResult(){const exam=currentTrainingExam();if(!exam){toast("请先选择试卷");return}const score=Number($("#resultScore").value||0);const status=$("#resultStatus").value==="自动判断"?"":$("#resultStatus").value;const payload={exam_id:exam.id,exam_title:exam.title,student_name:$("#resultStudent").value.trim(),department:$("#resultDept").value.trim(),score,total_score:exam.total_score||100,pass_score:exam.pass_score||60,status,comment:$("#resultComment").value.trim()};if(!payload.student_name){toast("请填写考生姓名");return}await api("/api/training/results",{method:"POST",body:JSON.stringify(payload)});toast("考试结果已保存");trainingTab="results";await refresh()}
+async function gradeTrainingResult(){const exam=currentTrainingExam();if(!exam){toast("请先选择试卷");return}const student=$("#resultStudent").value.trim();const answers=$("#resultComment").value.trim();if(!student){toast("请填写考生姓名");return}if(!answers){toast("请粘贴考生答案或答题详情");return}$("#gradeResult").innerHTML="<span class='muted'>正在根据标准答案和考生答案评分...</span>";const r=await api("/api/training/results/grade",{method:"POST",body:JSON.stringify({exam_id:exam.id,exam_title:exam.title,student_name:student,department:$("#resultDept").value.trim(),answers,comment:answers})});const g=r.grading||{};$("#gradeResult").innerHTML=`<div class="template"><b>评分完成：</b>${esc(r.score)} / ${esc(r.total_score)}，${pill(r.status)}<br><span class="muted">方式：${esc(g.method||"智能评分")}；${g.review_required?"建议人工复核关键题":"无需强制复核"}</span></div>`;toast("考试评分已保存");trainingTab="results";await refresh()}
+async function loadNextAction(id){const r=await api(`/api/candidates/${id}/next-action`);$("#agentResult").innerHTML=`<div><b>下一步推荐</b><pre>${pretty(r)}</pre></div>`}
+async function applyNextAction(id){await api(`/api/candidates/${id}/apply-next-action`,{method:"POST",body:"{}"});toast("已应用推荐下一步");await refresh();selectedCandidate=candidates.find(c=>c.id===id);renderCandidateDetail(selectedCandidate)}
+async function groupScore(id){const text=$("#groupText").value.trim();if(!text){toast("请先粘贴群面记录或作业内容");return}$("#groupResult").innerHTML="<span class='muted'>AI 正在评分...</span>";await api(`/api/candidates/${id}/group-score`,{method:"POST",body:JSON.stringify({text,auto_workflow:true})});toast("群面评分完成，流程已自动同步");await refresh();selectedCandidate=candidates.find(c=>c.id===id);renderCandidateDetail(selectedCandidate)}
+function renderKanban(){
+  $("#kanban").innerHTML=PIPELINE.map(s=>`<div class="lane"><h3>${s}</h3>${candidates.filter(c=>c.stage===s).map(c=>`<div class="mini" onclick="document.querySelector('[data-view=candidates]').click();selectCandidate('${c.id}')"><b>${c.name}</b><span>${c.position||""} · ${c.match?.score??"未评分"}分</span></div>`).join("")}</div>`).join("");
+}
+function renderProfiles(){
+  if(!selectedProfile) selectedProfile=profiles[0];
+  $("#profileList").innerHTML=profiles.map(p=>`<button class="${selectedProfile?.id===p.id?"active":""}" onclick="selectedProfile=profiles.find(x=>x.id==='${p.id}');jdDraft=null;renderProfiles()"><b>${p.name}</b><div class="muted">通过线 ${p.pass_score||70} 分</div></button>`).join("");
+  const p=selectedProfile||{id:"",name:"",description:"",required_skills:[],abilities:[],risk_keywords:[],pass_score:70};
+  const skillText=(p.required_skills||[]).map(x=>`${x.name},${x.weight}`).join("\n");
+  const abilityText=(p.abilities||[]).map(x=>`${x.name},${(x.keywords||[]).join("|")},${x.weight}`).join("\n");
+  const totalWeight=[...(p.required_skills||[]),...(p.abilities||[])].reduce((s,x)=>s+Number(x.weight||0),0);
+  $("#profileForm").innerHTML=`<div class="profile-panel card">
+    <div class="profile-head">
+      <div><h2>评分标准配置</h2><p>把岗位 JD 拆成技能、能力、风险和通过线，形成标准化多维评分规则，降低 HR 主观判断波动。</p></div>
+      <div class="profile-stats" id="profileStats">
+        <div class="stat"><b>${(p.required_skills||[]).length}</b><span>技能项</span></div>
+        <div class="stat"><b>${(p.abilities||[]).length}</b><span>能力项</span></div>
+        <div class="stat"><b>${totalWeight}</b><span>总权重</span></div>
+      </div>
+    </div>
+    <div class="profile-form">
+      <div class="form-grid">
+        <div class="field"><label>岗位名称</label><input id="pName" value="${p.name||""}" placeholder="例如：AI算法实习生"></div>
+        <div class="field"><label>通过分</label><input id="pPass" type="number" min="0" max="100" value="${p.pass_score||70}"></div>
+      </div>
+      <div class="field"><label>岗位说明 <span class="hint">用于 HR 快速理解岗位画像</span></label><textarea id="pDesc" class="textarea-short">${p.description||""}</textarea></div>
+      <div class="config-box">
+        <h3>智能 JD 生成</h3>
+        <div class="hint">针对“语言模板化、岗位细节难体现”，可补充行业知识库/RAG上下文，系统会结合岗位字段生成更贴近业务的 JD。</div>
+        <div class="jd-builder" style="margin-top:10px">
+          <div class="jd-form">
+            <div class="input-row">
+              <div class="field"><label>职位名称</label><input id="jdTitle" value="${esc(p.name||"")}" placeholder="例如：软件开发"></div>
+              <div class="field"><label>工作地点</label><input id="jdCity" placeholder="例如：上海"></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>部门</label><input id="jdDept" placeholder="例如：技术部"></div>
+              <div class="field"><label>工作类型</label><select id="jdWorkType"><option>全职</option><option>实习</option><option>兼职</option><option>校招</option></select></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>薪资范围</label><input id="jdSalary" placeholder="例如：15K / 10-25K"></div>
+              <div class="field"><label>学历要求</label><select id="jdEducation"><option>本科</option><option>硕士</option><option>大专</option><option>不限</option></select></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>经验要求</label><input id="jdExperience" placeholder="例如：5-10年软件开发经验"></div>
+              <div class="field"><label>招聘人数</label><input id="jdHeadcount" type="number" min="1" value="1"></div>
+            </div>
+            <div class="field"><label>技能标签</label><input id="jdSkills" value="${esc((p.required_skills||[]).map(x=>x.name).join("、"))}" placeholder="Python、Angular、Vue.js、TypeScript"></div>
+            <div class="field"><label>业务/项目背景</label><textarea id="jdBackground" class="textarea-short" placeholder="例如：负责保险经纪系统、后台管理平台、数据可视化等项目建设。"></textarea></div>
+            <div class="field"><label>行业知识库/RAG上下文</label><textarea id="jdKnowledge" class="textarea-short" placeholder="粘贴行业知识、团队技术栈、业务术语、岗位真实项目、优秀JD片段，生成时会作为岗位细节依据。"></textarea></div>
+            <div class="field"><label>公司介绍</label><textarea id="jdCompany" class="textarea-short" placeholder="例如：我们是一家快速成长的科技公司，重视工程质量和人才培养。"></textarea></div>
+            <div class="field"><label>福利待遇/工作亮点</label><input id="jdHighlights" placeholder="例如：五险一金、弹性办公、技术成长、扁平协作"></div>
+            <div class="jd-actions">
+              <button class="btn blue" type="button" onclick="generateJD()">生成 JD</button>
+              <button class="btn" type="button" onclick="applyJDToProfile()">应用到岗位标准</button>
+            </div>
+          </div>
+          <div class="template jd-preview" id="jdPreview">生成后的 JD 会显示在这里。</div>
+        </div>
+      </div>
+      <div class="score-blocks">
+        <div class="config-box">
+          <h3>核心技能权重</h3>
+          <div class="hint">每行格式：技能,权重。用于硬技能匹配，权重越高，对匹配分影响越大。</div>
+          <textarea id="pSkills" class="textarea-tall">${skillText}</textarea>
+        </div>
+        <div class="config-box">
+          <h3>能力关键词</h3>
+          <div class="hint">每行格式：能力,关键词1|关键词2,权重。</div>
+          <textarea id="pAbilities" class="textarea-tall">${abilityText}</textarea>
+        </div>
+      </div>
+      <div class="risk-row">
+        <div class="field"><label>风险关键词 <span class="hint">命中后会进入风险点</span></label><input id="pRisks" value="${(p.risk_keywords||[]).join(",")}" placeholder="例如：无法到岗,不接受实习"></div>
+        <div class="config-box"><h3>多指标评分提示</h3><div class="hint">建议总权重控制在 80-120；技能项用于硬匹配，能力项用于项目经历和协作信号，风险关键词会进入风险控制维度，候选人详情会展示各维度评分依据。</div></div>
+      </div>
+      <div class="save-bar">
+        <div class="save-note">保存后立即用于候选人重新评分，并写入 data/config/job_profiles.json。</div>
+        <button class="btn primary" onclick="saveProfile()">保存岗位标准</button>
+      </div>
+    </div>
+  </div>`;
+  ["pSkills","pAbilities"].forEach(id=>$("#"+id).addEventListener("input",updateProfileStats));
+}
+function updateProfileStats(){const skills=parseSkills($("#pSkills").value), abilities=parseAbilities($("#pAbilities").value);const total=[...skills,...abilities].reduce((s,x)=>s+Number(x.weight||0),0);$("#profileStats").innerHTML=`<div class="stat"><b>${skills.length}</b><span>技能项</span></div><div class="stat"><b>${abilities.length}</b><span>能力项</span></div><div class="stat"><b>${total}</b><span>总权重</span></div>`}
+function parseSkills(v){return v.split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{const [name,weight]=l.split(",");return {name:name.trim(),weight:Number(weight||5)}})}
+function parseAbilities(v){return v.split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{const parts=l.split(",");return {name:(parts[0]||"").trim(),keywords:(parts[1]||"").split("|").map(x=>x.trim()).filter(Boolean),weight:Number(parts[2]||5)}})}
+function jdPayload(){return {title:$("#jdTitle").value.trim()||$("#pName").value.trim(),city:$("#jdCity").value.trim(),department:$("#jdDept").value.trim(),work_type:$("#jdWorkType").value, salary:$("#jdSalary").value.trim(),education:$("#jdEducation").value,experience:$("#jdExperience").value.trim(),headcount:Number($("#jdHeadcount").value||1),skills:$("#jdSkills").value.trim(),background:$("#jdBackground").value.trim(),knowledge:$("#jdKnowledge")?.value.trim()||"",company:$("#jdCompany").value.trim(),highlights:$("#jdHighlights").value.trim()}}
+async function generateJD(){try{$("#jdPreview").textContent="正在生成 JD...";const r=await api("/api/jd-generate",{method:"POST",body:JSON.stringify(jdPayload())});jdDraft=r;$("#jdPreview").textContent=r.jd_text||"生成完成，但没有返回正文。";toast((r.method||"JD")+" 已生成")}catch(e){$("#jdPreview").textContent="生成失败："+e.message;toast("JD 生成失败："+e.message)}}
+function applyJDToProfile(){if(!jdDraft){toast("请先生成 JD");return}const profile=jdDraft.profile||{};if(profile.name)$("#pName").value=profile.name;if(jdDraft.jd_text)$("#pDesc").value=jdDraft.jd_text;if(profile.pass_score)$("#pPass").value=profile.pass_score;if(profile.required_skills)$("#pSkills").value=profile.required_skills.map(x=>`${x.name},${x.weight||5}`).join("\n");if(profile.abilities)$("#pAbilities").value=profile.abilities.map(x=>`${x.name},${(x.keywords||[x.name]).join("|")},${x.weight||5}`).join("\n");if(profile.risk_keywords)$("#pRisks").value=profile.risk_keywords.join("，");updateProfileStats();toast("已应用到岗位标准，确认后点击保存")}
+async function saveProfile(){const p={...(selectedProfile||{}),id:selectedProfile?.id||Date.now().toString(36),name:$("#pName").value,description:$("#pDesc").value,pass_score:Number($("#pPass").value||70),required_skills:parseSkills($("#pSkills").value),abilities:parseAbilities($("#pAbilities").value),risk_keywords:$("#pRisks").value.split(/[,，]/).map(x=>x.trim()).filter(Boolean)};await api("/api/job-profiles",{method:"POST",body:JSON.stringify(p)});toast("岗位标准已保存");selectedProfile=p;await refresh()}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+const T={online:"\u5728\u7ebf",failed:"\u5931\u8d25",untested:"\u672a\u6d4b\u8bd5",custom:"\u81ea\u5b9a\u4e49",env:"\u73af\u5883\u914d\u7f6e",current:"\u5f53\u524d"};
+function renderModelList(){if(!appConfig)return;const q=(document.querySelector("#modelSearch")?.value||"").toLowerCase(), source=document.querySelector("#modelSourceFilter")?.value||"", status=document.querySelector("#modelStatusFilter")?.value||"";let models=(appConfig.model_configs||[]).filter(m=>(!source||m.source===source)&&(!status||m.status===status)&&(!q||JSON.stringify(m).toLowerCase().includes(q)));document.querySelector("#modelList").innerHTML=models.map(m=>{const available=(m.available_models||[]).slice(0,8);const result=m.last_test_message?`<div class="model-test-result ${m.last_test_ok===false?"bad":""}"><b>${esc(m.last_test_message)}</b><br>${available.length?`\u53ef\u7528\u6a21\u578b\uff1a${available.map(esc).join("\u3001")}${(m.available_models||[]).length>8?"...":""}`:(m.models_error?`\u6a21\u578b\u5217\u8868\u8bfb\u53d6\u5931\u8d25\uff1a${esc(m.models_error)}`:"\u5df2\u5b8c\u6210\u8fde\u901a\u6d4b\u8bd5")}</div>`:"";return `<div class="model-card ${m.id===appConfig.active_model_id?"active":""}"><div class="model-title"><h3>${esc(m.name||"\u672a\u547d\u540d\u6a21\u578b")}</h3><div><span class="badge ${m.status===T.online?"ok":""}">${esc(m.status||T.untested)}</span> ${m.id===appConfig.active_model_id?'<span class="badge active">\u5f53\u524d</span>':""}</div></div><div class="model-meta"><span class="model-label">\u6a21\u578b</span><span>${esc(m.model||"\u65e0")}</span><span class="model-label">API</span><span>${esc(m.base_url||"\u65e0")}</span><span class="model-label">Key</span><span>${m.has_api_key?"\u5df2\u4fdd\u5b58":esc(m.api_key_env||"\u65e0")}</span><span class="model-label">Temp</span><span>${esc(m.temperature??0.2)}</span><span class="model-label">Timeout</span><span>${esc(m.timeout||120)}s</span><span class="model-label">Thinking</span><span>${esc(m.thinking||"OpenAI")}</span></div>${result}<div class="model-actions"><button class="btn small blue" onclick="useModel('${esc(m.id)}')">\u8bbe\u4e3a\u5f53\u524d</button><button class="btn small" onclick="testModel('${esc(m.id)}')">\u6d4b\u8bd5\u8fde\u901a</button><button class="btn small ghost" onclick="editModel('${esc(m.id)}')">\u7f16\u8f91</button><button class="btn small" onclick="deleteModel('${esc(m.id)}')">\u5220\u9664</button></div></div>`}).join("")||"<div class='muted'>\u6682\u65e0\u6a21\u578b\u914d\u7f6e\u3002</div>"}
+function modelModalHtml(){return `<div id="modelModal" class="modal-mask" onclick="if(event.target===this)closeModelModal()"><div class="modal-panel"><div class="modal-head"><h3 id="modelFormTitle">\u65b0\u589e\u6a21\u578b</h3><button class="icon-btn" onclick="closeModelModal()">X</button></div><div class="modal-body"><div class="model-form"><div class="model-form-grid"><div class="field"><label>\u663e\u793a\u540d\u79f0</label><input id="modelName" placeholder="\u4f8b\u5982\uff1aqwen3.6-27b(A100)"></div><div class="field"><label>\u6a21\u578b\u6807\u8bc6</label><input id="modelIdName" placeholder="\u4f8b\u5982\uff1aqwen36-27b"></div></div><div class="field"><label>API \u5730\u5740</label><input id="modelBaseUrl" placeholder="\u53ef\u586b http://host:port/v1"></div><div class="model-form-grid"><div class="field"><label>API Key</label><input id="modelApiKey" type="password" placeholder="\u672c\u5730\u6a21\u578b\u53ef\u7559\u7a7a\uff0c\u7f16\u8f91\u65f6\u7559\u7a7a\u8868\u793a\u4e0d\u4fee\u6539"></div><div class="field"><label>\u73af\u5883\u53d8\u91cf\u540d</label><input id="modelKeyEnv" value="OPENAI_API_KEY"></div></div><div class="model-form-grid"><div class="field"><label>Temperature</label><input id="modelTemp" type="number" step="0.1" value="0.2"></div><div class="field"><label>Timeout \u79d2</label><input id="modelTimeout" type="number" value="120"></div></div><div class="model-form-grid"><div class="field"><label>Thinking / Provider</label><input id="modelThinking" placeholder="OpenAI / DashScope / \u4e0d\u5173\u95ed"></div><div class="field"><label>\u6765\u6e90</label><select id="modelSource"><option>${T.custom}</option><option>${T.env}</option></select></div></div><div class="actions"><button class="btn primary" onclick="saveModel()">\u4fdd\u5b58\u6a21\u578b</button><button class="btn" onclick="closeModelModal()">\u53d6\u6d88</button></div></div></div></div></div>`}
+function openModelModal(){document.querySelector("#modelModal")?.classList.add("open")}
+function closeModelModal(){document.querySelector("#modelModal")?.classList.remove("open")}
+function newModel(){editingModelId=null;openModelModal();["modelName","modelIdName","modelBaseUrl","modelApiKey"].forEach(id=>document.querySelector("#"+id).value="");document.querySelector("#modelKeyEnv").value="OPENAI_API_KEY";document.querySelector("#modelTemp").value="0.2";document.querySelector("#modelTimeout").value="120";document.querySelector("#modelThinking").value="OpenAI";document.querySelector("#modelSource").value=T.custom;document.querySelector("#modelFormTitle").textContent="\u65b0\u589e\u6a21\u578b"}
+function fillModelForm(m){if(!m)return;openModelModal();document.querySelector("#modelFormTitle").textContent="\u7f16\u8f91\u6a21\u578b";document.querySelector("#modelName").value=m.name||"";document.querySelector("#modelIdName").value=m.model||"";document.querySelector("#modelBaseUrl").value=m.base_url||"";document.querySelector("#modelApiKey").value="";document.querySelector("#modelKeyEnv").value=m.api_key_env||"OPENAI_API_KEY";document.querySelector("#modelTemp").value=m.temperature??0.2;document.querySelector("#modelTimeout").value=m.timeout||120;document.querySelector("#modelThinking").value=m.thinking||"";document.querySelector("#modelSource").value=m.source||T.custom}
+function editModel(id){editingModelId=id;fillModelForm((appConfig.model_configs||[]).find(m=>m.id===id))}
+async function persistConfig(extra={}){const payload={llm_enabled:document.querySelector("#cfgEnabled")?document.querySelector("#cfgEnabled").value==="true":appConfig.llm_enabled,model_configs:appConfig.model_configs,active_model_id:appConfig.active_model_id,reminder_hours:Number(document.querySelector("#cfgReminder")?.value||appConfig.reminder_hours||24),manager_register_code:appConfig.manager_register_code,...currentPromptConfig(),workflow_rules:collectWorkflowRules(),mask_contact_for_hr:$("#cfgMaskContact")?$("#cfgMaskContact").value==="true":!!appConfig.mask_contact_for_hr,data_retention_days:Number($("#cfgRetentionDays")?.value||appConfig.data_retention_days||365),ui_theme:appConfig.ui_theme||"light",ui_primary_color:appConfig.ui_primary_color||"#126b61",ui_font_size:appConfig.ui_font_size||14,ui_font_family:appConfig.ui_font_family||"Microsoft YaHei",...extra};appConfig=await api("/api/app-config",{method:"POST",body:JSON.stringify(payload)});applyAppearance();return appConfig}
+async function saveModel(){const id=editingModelId||Date.now().toString(36);const old=(appConfig.model_configs||[]).find(m=>m.id===id)||{};const model={id,name:document.querySelector("#modelName").value.trim()||document.querySelector("#modelIdName").value.trim()||"\u672a\u547d\u540d\u6a21\u578b",model:document.querySelector("#modelIdName").value.trim(),base_url:document.querySelector("#modelBaseUrl").value.trim(),api_key:document.querySelector("#modelApiKey").value.trim(),api_key_env:document.querySelector("#modelKeyEnv").value.trim()||"OPENAI_API_KEY",temperature:Number(document.querySelector("#modelTemp").value||0.2),timeout:Number(document.querySelector("#modelTimeout").value||120),thinking:document.querySelector("#modelThinking").value.trim()||"OpenAI",source:document.querySelector("#modelSource").value,status:old.status||T.untested,last_test:old.last_test||"",last_test_ok:old.last_test_ok,last_test_message:old.last_test_message||"",available_models:old.available_models||[],models_error:old.models_error||"",model_found:old.model_found,has_api_key:old.has_api_key};appConfig.model_configs=[...(appConfig.model_configs||[]).filter(m=>m.id!==id),model];if(!appConfig.active_model_id)appConfig.active_model_id=id;await persistConfig();toast("\u6a21\u578b\u5df2\u4fdd\u5b58");editingModelId=null;renderModelSettings()}
+async function useModel(id){appConfig.active_model_id=id;await persistConfig();toast("\u5df2\u8bbe\u4e3a\u5f53\u524d\u6a21\u578b");renderModelSettings()}
+async function deleteModel(id){if((appConfig.model_configs||[]).length<=1){toast("\u81f3\u5c11\u4fdd\u7559\u4e00\u4e2a\u6a21\u578b");return}appConfig.model_configs=(appConfig.model_configs||[]).filter(m=>m.id!==id);if(appConfig.active_model_id===id)appConfig.active_model_id=appConfig.model_configs[0]?.id;await persistConfig();toast("\u6a21\u578b\u5df2\u5220\u9664");editingModelId=null;renderModelSettings()}
+async function testModel(id){toast("\u6b63\u5728\u6d4b\u8bd5\u6a21\u578b\u8fde\u901a");const r=await api("/api/model-test",{method:"POST",body:JSON.stringify({id})});toast(r.ok?"\u6a21\u578b\u8fde\u901a\u6210\u529f":"\u6a21\u578b\u8fde\u901a\u5931\u8d25\uff1a"+r.message);appConfig=await api("/api/app-config");renderModelSettings()}
+async function saveSettings(){await persistConfig();toast("\u7cfb\u7edf\u8bbe\u7f6e\u5df2\u4fdd\u5b58");renderSettings()}
+async function rerunWorkflowRules(){await persistConfig();const r=await api("/api/workflow-rerun",{method:"POST",body:"{}"});toast(`已重新检查 ${r.count} 位候选人，更新 ${r.changed} 位`);await refresh()}
+function renderModelSettings(){if(!currentUser||currentUser.role!=="manager"||!appConfig)return;const c=appConfig||{};const models=c.model_configs||[];const activeId=c.active_model_id;const online=models.filter(m=>m.status===T.online).length;document.querySelector("#modelSettingsPanel").innerHTML=`<div class="profile-form"><div class="config-box"><h3>\u6a21\u578b\u603b\u89c8</h3><div class="model-stats"><div class="metric"><span class="muted">\u603b\u6a21\u578b\u6570</span><b>${models.length}</b></div><div class="metric"><span class="muted">\u5f53\u524d\u542f\u7528</span><b>${esc(models.find(m=>m.id===activeId)?.name||"\u65e0")}</b></div><div class="metric"><span class="muted">\u5728\u7ebf</span><b>${online}</b></div><div class="metric"><span class="muted">\u81ea\u5b9a\u4e49</span><b>${models.filter(m=>m.source===T.custom).length}</b></div></div><div class="model-tools"><input id="modelSearch" placeholder="\u641c\u7d22\u6a21\u578b\u540d\u79f0\u3001\u6a21\u578b\u6807\u8bc6\u3001API \u5730\u5740..." oninput="renderModelList()"><select id="modelSourceFilter" onchange="renderModelList()"><option value="">\u5168\u90e8\u6765\u6e90</option><option>${T.env}</option><option>${T.custom}</option></select><select id="modelStatusFilter" onchange="renderModelList()"><option value="">\u5168\u90e8\u72b6\u6001</option><option>${T.online}</option><option>${T.failed}</option><option>${T.untested}</option></select><button class="btn primary" onclick="newModel()">+ \u6dfb\u52a0\u6a21\u578b</button></div><div id="modelList" class="model-list"></div></div><div class="config-box"><h3>\u8c03\u7528\u89c4\u5219</h3><div class="form-grid"><div class="field"><label>\u542f\u7528\u5927\u6a21\u578b</label><select id="cfgEnabled"><option value="false">\u5173\u95ed\uff0c\u4f7f\u7528\u672c\u5730\u515c\u5e95</option><option value="true" ${c.llm_enabled?"selected":""}>\u5f00\u542f\uff0c\u4f7f\u7528\u5f53\u524d\u6a21\u578b</option></select></div><div class="field"><label>\u63d0\u9192\u5c0f\u65f6\u6570</label><input id="cfgReminder" type="number" min="1" value="${c.reminder_hours||24}"></div></div>${workflowRuleSettings(c.workflow_rules||{})}${complianceSettings(c)}<div class="save-bar"><div class="save-note">\u8c03\u7528\u89c4\u5219\u4fdd\u5b58\u540e\u4f1a\u5f71\u54cd AI \u89e3\u6790\u3001\u8bc4\u5ba1\u3001\u81ea\u52a8\u63a8\u8fdb\u3001\u6570\u636e\u5408\u89c4\u548c\u63d0\u9192\u3002</div><button class="btn primary" onclick="persistConfig().then(()=>toast('\\u8c03\\u7528\\u89c4\\u5219\\u5df2\\u4fdd\\u5b58'))">\u4fdd\u5b58\u8c03\u7528\u89c4\u5219</button></div></div></div>${modelModalHtml()}`;renderModelList()}
+function workflowRuleSettings(r={}){const v=(k,d)=>r[k]??d;return `<div class="config-box" style="margin-top:12px"><h3>流程分数线</h3><div class="hint">这些分数线控制自动流转：简历、群面、作业和 HR 面达到对应分数后自动进入下一环节。</div><div class="model-form-grid" style="margin-top:10px"><div class="field"><label>简历推进群面线</label><input id="ruleResumePass" type="number" min="0" max="100" value="${v("resume_pass_score",70)}"></div><div class="field"><label>简历待观察线</label><input id="ruleResumeWatch" type="number" min="0" max="100" value="${v("resume_watch_score",55)}"></div><div class="field"><label>群面推进作业线</label><input id="ruleGroupPass" type="number" min="0" max="100" value="${v("group_pass_score",70)}"></div><div class="field"><label>作业推进终面线</label><input id="ruleAssignmentPass" type="number" min="0" max="100" value="${v("assignment_pass_score",70)}"></div><div class="field"><label>HR面通过线</label><input id="ruleHrPass" type="number" min="0" max="100" value="${v("hr_pass_score",70)}"></div></div><div class="actions" style="margin-top:10px"><button class="btn small ghost" onclick="rerunWorkflowRules()">重新套用到现有候选人</button></div></div>`}
+function complianceSettings(c={}){return `<div class="config-box" style="margin-top:12px"><h3>数据合规与权限</h3><div class="hint">控制普通 HR 的候选人数据可见范围和简历数据保留周期，适合多人共同使用但账号权限独立的场景。</div><div class="model-form-grid" style="margin-top:10px"><div class="field"><label>普通 HR 联系方式脱敏</label><select id="cfgMaskContact"><option value="false" ${!c.mask_contact_for_hr?"selected":""}>关闭，完整展示</option><option value="true" ${c.mask_contact_for_hr?"selected":""}>开启，仅管理员完整可见</option></select></div><div class="field"><label>数据保留天数</label><input id="cfgRetentionDays" type="number" min="30" value="${c.data_retention_days||365}"></div></div><div class="hint">开启脱敏后，非管理员通过候选人接口看到的手机号和邮箱会被遮盖；管理员仍可查看完整数据并导出。</div></div>`}
+function promptFields(){return [
+  ["resume_parse_prompt","cfgParsePrompt","AI解析简历","要求模型结构化解析简历，不补充简历没有的信息。"],
+  ["candidate_review_prompt","cfgReviewPrompt","AI综合评审","用于岗位适配度、匹配证据、风险点、追问问题和推进建议。"],
+  ["jd_generate_prompt","cfgJdPrompt","JD生成","用于智能 JD 生成和岗位评分标准抽取，可约束行业知识库/RAG上下文的使用方式。"],
+  ["candidate_rescore_prompt","cfgRescorePrompt","简历AI复核评分","用于规则评分后的模型复核，要求输出 score、strengths、risks、questions、suggestion。"],
+  ["next_action_prompt","cfgNextActionPrompt","流程下一步推荐","用于根据候选人当前阶段生成下一步动作、原因、话术和建议阶段。"],
+  ["group_score_prompt","cfgGroupScorePrompt","群面/作业评分","用于根据群面记录、面试官评价或作业内容生成维度分、总分和决策建议。"],
+  ["interview_plan_prompt","cfgInterviewPlanPrompt","智能面试方案","用于根据不同简历生成定制化面试问题、项目深挖、评分 Rubric 和风险验证。"],
+  ["daily_report_prompt","cfgDailyPrompt","AI招聘日报","用于生成今日概览、风险、优先跟进、建议动作和流程卡点。"],
+  ["training_exam_prompt","cfgTrainingExamPrompt","试卷生成","用于根据培训对象、主题、难度和技能点生成试卷、题目、答案和评分规则。"],
+  ["exam_grading_prompt","cfgExamGradingPrompt","考试阅卷评分","用于根据试卷标准答案和考生答案评分，并标记是否需要人工复核。"],
+]}
+function currentPromptConfig(){const out={};promptFields().forEach(([key])=>out[key]=appConfig?.[key]||"");return out}
+function renderPromptSettings(){if(!currentUser||currentUser.role!=="manager"||!appConfig)return;const c=appConfig||{};$("#promptSettingsPanel").innerHTML=`<div class="profile-form"><div class="config-box"><h3>提示词管理</h3><div class="hint">以下功能都会调用模型。修改后保存到 data/config/app_config.json，下一次调用对应智能体立即生效。请尽量保留要求输出 JSON 的字段约束。</div></div>${promptFields().map(([key,id,title,hint])=>`<div class="config-box"><h3>${esc(title)}</h3><div class="field"><label>${esc(title)}提示词</label><textarea id="${id}" class="textarea-tall">${esc(c[key]||"")}</textarea></div><div class="hint">${esc(hint)}</div></div>`).join("")}<div class="save-bar"><div class="save-note">保存后会影响 JD、简历解析、候选评审、流程推荐、群面评分、面试方案、日报、试卷生成和考试阅卷。</div><button class="btn primary" onclick="savePromptSettings()">保存全部提示词</button></div></div>`}
+function renderSettings(){if(!currentUser)return;const c=appConfig||{};const globalSettings=currentUser.role==="manager"?`<div class="config-box"><h3>全局外观</h3><div class="form-grid"><div class="field"><label>主题模式</label><select id="cfgTheme"><option value="light" ${c.ui_theme!=="dark"?"selected":""}>浅色模式</option><option value="dark" ${c.ui_theme==="dark"?"selected":""}>深色模式</option></select></div><div class="field"><label>主色</label><input id="cfgPrimaryColor" type="color" value="${c.ui_primary_color||"#126b61"}"></div></div><div class="form-grid"><div class="field"><label>字体</label><select id="cfgFontFamily"><option ${c.ui_font_family==="Microsoft YaHei"?"selected":""}>Microsoft YaHei</option><option ${c.ui_font_family==="SimHei"?"selected":""}>SimHei</option><option ${c.ui_font_family==="Arial"?"selected":""}>Arial</option></select></div><div class="field"><label>字号</label><input id="cfgFontSize" type="number" min="12" max="18" value="${c.ui_font_size||14}"></div></div><div class="save-bar"><div class="save-note">全局外观配置会保存到 data/config/app_config.json。</div><button class="btn primary" onclick="saveBasicSettings()">保存外观设置</button></div></div>`:"";$("#settingsPanel").innerHTML=`<div class="profile-form"><div class="config-box"><div class="settings-head">${avatarHtml(currentUser,"large")}<div><h3>个人账户</h3><div class="hint">维护头像、账号、联系方式和安全密码。</div></div></div><div class="form-grid"><div class="field"><label>用户名</label><input id="acctUsername" value="${esc(currentUser.username||"")}"></div><div class="field"><label>显示名称</label><input id="acctDisplay" value="${esc(currentUser.display_name||"")}"></div></div><div class="form-grid"><div class="field"><label>部门</label><input id="acctDepartment" value="${esc(currentUser.department||"")}" placeholder="例如：招聘组"></div><div class="field"><label>职位/身份</label><input id="acctTitle" value="${esc(currentUser.title||"")}" placeholder="例如：高级 HR"></div></div><div class="form-grid"><div class="field"><label>手机号</label><input id="acctPhone" value="${esc(currentUser.phone||"")}"></div><div class="field"><label>邮箱</label><input id="acctEmail" value="${esc(currentUser.email||"")}"></div></div><div class="form-grid"><div class="field"><label>头像图片地址</label><input id="acctAvatarUrl" value="${esc(currentUser.avatar_url||"")}" placeholder="可填图片 URL，留空使用首字头像"></div><div class="field"><label>头像底色</label><input id="acctAvatarColor" type="color" value="${currentUser.avatar_color||"#126b61"}"></div></div><div class="field"><label>个人简介</label><textarea id="acctBio" class="textarea-short" placeholder="例如：负责 AI/算法实习生招聘、群面组织和候选人跟进">${esc(currentUser.bio||"")}</textarea></div><div class="save-bar"><div class="save-note">资料会保存到 data/config/users.json。</div><button class="btn primary" onclick="saveAccountProfile()">保存个人资料</button></div></div><div class="config-box"><h3>修改密码</h3><div class="form-grid"><div class="field"><label>原密码</label><input id="acctOldPassword" type="password" placeholder="修改密码时必填"></div><div class="field"><label>新密码</label><input id="acctNewPassword" type="password" placeholder="至少 6 位"></div></div><div class="save-bar"><div class="save-note">保存后下次登录使用新密码。</div><button class="btn primary" onclick="saveAccountPassword()">更新密码</button></div></div>${globalSettings}</div>`}
+function collectWorkflowRules(){const current=appConfig?.workflow_rules||{};const read=(id,fallback)=>{const el=$("#"+id);const n=Number(el?.value);return Number.isFinite(n)?Math.max(0,Math.min(100,Math.round(n))):fallback};return {resume_pass_score:read("ruleResumePass",current.resume_pass_score??70),resume_watch_score:read("ruleResumeWatch",current.resume_watch_score??55),group_pass_score:read("ruleGroupPass",current.group_pass_score??70),assignment_pass_score:read("ruleAssignmentPass",current.assignment_pass_score??70),hr_pass_score:read("ruleHrPass",current.hr_pass_score??70)}}
+async function persistConfig(extra={}){const payload={llm_enabled:$("#cfgEnabled")?$("#cfgEnabled").value==="true":appConfig.llm_enabled,model_configs:appConfig.model_configs,active_model_id:appConfig.active_model_id,reminder_hours:Number($("#cfgReminder")?.value||appConfig.reminder_hours||24),manager_register_code:appConfig.manager_register_code,...currentPromptConfig(),workflow_rules:collectWorkflowRules(),mask_contact_for_hr:$("#cfgMaskContact")?$("#cfgMaskContact").value==="true":!!appConfig.mask_contact_for_hr,data_retention_days:Number($("#cfgRetentionDays")?.value||appConfig.data_retention_days||365),ui_theme:appConfig.ui_theme||"light",ui_primary_color:appConfig.ui_primary_color||"#126b61",ui_font_size:appConfig.ui_font_size||14,ui_font_family:appConfig.ui_font_family||"Microsoft YaHei",...extra};appConfig=await api("/api/app-config",{method:"POST",body:JSON.stringify(payload)});applyAppearance();return appConfig}
+function collectPromptSettings(){const out={};promptFields().forEach(([key,id])=>{const el=$("#"+id);out[key]=el?el.value:(appConfig?.[key]||"")});return out}
+async function savePromptSettings(){await persistConfig(collectPromptSettings());toast("提示词已保存");renderPromptSettings()}
+async function saveAccountProfile(){const r=await api("/api/account",{method:"POST",body:JSON.stringify({username:$("#acctUsername").value.trim(),display_name:$("#acctDisplay").value.trim(),department:$("#acctDepartment").value.trim(),title:$("#acctTitle").value.trim(),phone:$("#acctPhone").value.trim(),email:$("#acctEmail").value.trim(),avatar_url:$("#acctAvatarUrl").value.trim(),avatar_color:$("#acctAvatarColor").value,bio:$("#acctBio").value.trim()})});currentUser=r.user;renderUserbar();renderSettings();toast("个人资料已保存")}
+async function saveAccountPassword(){const oldp=$("#acctOldPassword").value,newp=$("#acctNewPassword").value;if(!newp){toast("请输入新密码");return}const r=await api("/api/account",{method:"POST",body:JSON.stringify({old_password:oldp,new_password:newp})});currentUser=r.user;$("#acctOldPassword").value="";$("#acctNewPassword").value="";toast("密码已更新")}
+async function saveBasicSettings(){await persistConfig({ui_theme:$("#cfgTheme").value,ui_primary_color:$("#cfgPrimaryColor").value,ui_font_size:Number($("#cfgFontSize").value||14),ui_font_family:$("#cfgFontFamily").value});toast("外观设置已保存");renderSettings()}
+async function saveSettings(){await saveBasicSettings()}
+function showCollectGuide(){const box=$("#collectGuide");box.style.display=box.style.display==="none"?"block":"none"}
+async function collectSelectedSource(){const source=$("#collectSource").value;const cfg=(collectionSources||[]).find(s=>s.id===source);if(!cfg||!cfg.api_url||source==="local"){openResumePicker(source);return}$("#collectResult").textContent="正在通过 API 采集...";try{const r=await api("/api/resume-api-collect",{method:"POST",body:JSON.stringify({source})});$("#collectResult").textContent=`已从${r.source||r.api_source||cfg.name}采集 ${r.saved_count||0} 份，候选人 ${r.scan?.total||0} 人`;toast("API 采集完成");await refresh()}catch(e){$("#collectResult").textContent="API 采集失败，可改用上传/粘贴："+e.message;toast("API 采集失败")}}
+function collectFromPlatform(source){$("#collectSource").value=source;collectSelectedSource()}
+function openResumePicker(source){if(source)$("#collectSource").value=source;$("#resumeFiles").click()}
+function fileToBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(",")[1]||"");r.onerror=reject;r.readAsDataURL(file)})}
+async function uploadResumeFiles(files){files=[...(files||[])];if(!files.length)return;$("#collectResult").textContent="正在导入文件...";const payload={source:$("#collectSource").value,files:[]};for(const file of files){payload.files.push({name:file.name,content:await fileToBase64(file)})}const r=await api("/api/resume-collect",{method:"POST",body:JSON.stringify(payload)});$("#resumeFiles").value="";$("#collectResult").textContent=`已从${r.source}导入 ${r.saved_count} 份，候选人 ${r.scan?.total||0} 人`;toast(`简历采集完成：${r.saved_count} 份`);await refresh()}
+async function importPlatformText(){const text=$("#platformResumeText").value.trim();if(!text){toast("请先粘贴候选人资料");return}$("#collectResult").textContent="正在导入文本...";const name=($("#collectSource").selectedOptions[0]?.textContent||"平台")+"候选人.txt";const r=await api("/api/resume-collect",{method:"POST",body:JSON.stringify({source:$("#collectSource").value,texts:[{name,text}]})});$("#collectResult").textContent=`已从${r.source}导入 ${r.saved_count} 条文本，候选人 ${r.scan?.total||0} 人`;$("#platformResumeText").value="";toast("平台候选人已导入");await refresh()}
+function switchView(viewId, navButton){
+  const target=$("#"+viewId);
+  if(!target){toast("页面模块不存在："+viewId);return}
+  document.querySelectorAll("nav button,.view").forEach(x=>x.classList.remove("active"));
+  (navButton||document.querySelector(`nav button[data-view="${viewId}"]`))?.classList.add("active");
+  target.classList.add("active");
+  const titleText=(navButton||document.querySelector(`nav button[data-view="${viewId}"]`))?.textContent||"";
+  if(titleText) $("#title").textContent=titleText;
+  renderCurrentView();
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view,b));
+$("#scanBtn").onclick=async()=>{toast("正在扫描并同步简历文件夹");const r=await api("/api/scan",{method:"POST",body:JSON.stringify({remove_missing:true})});const fallback=(r.failed||[]).filter(x=>x.imported_from_filename).length;toast(`扫描完成：${r.scanned} 个文件，候选人 ${r.total} 人${r.removed_count?`，移除 ${r.removed_count} 条已删文件记录`:""}${fallback?`，${fallback} 份先按文件名导入`:""}`);await refresh()};
+$("#scoreAllBtn").onclick=async()=>{await api("/api/score-all",{method:"POST",body:JSON.stringify({profile_id:selectedProfile?.id})});toast("批量评分完成");await refresh()};
+$("#exportBtn").onclick=()=>location.href="/api/export/candidates.csv";
+$("#search").oninput=renderCandidates; $("#stageFilter").onchange=renderCandidates;
+$("#newProfileBtn").onclick=()=>{jdDraft=null;selectedProfile={id:"",name:"新岗位",description:"",required_skills:[],abilities:[],risk_keywords:[],pass_score:70};renderProfiles()};
+$("#loginTab").onclick=()=>setAuthMode("login");$("#registerTab").onclick=()=>setAuthMode("register");
+function setAuthMode(mode){authMode=mode;$("#loginTab").classList.toggle("active",mode==="login");$("#registerTab").classList.toggle("active",mode==="register");$("#authSubmit").textContent=mode==="login"?"登录":"注册";$("#authDisplay").style.display=mode==="register"?"block":"none";$("#roleRow").style.display=mode==="register"?"grid":"none"}
+$("#authSubmit").onclick=async()=>{try{const payload={username:$("#authUsername").value.trim(),password:$("#authPassword").value,display_name:$("#authDisplay").value.trim(),role:$("#authRole").value,manager_code:$("#managerCode").value.trim()};if(authMode==="register"){await api("/api/register",{method:"POST",body:JSON.stringify(payload)});toast("注册成功，请登录");setAuthMode("login");return}const r=await api("/api/login",{method:"POST",body:JSON.stringify(payload)});currentUser=r.user;showAuth(false);renderUserbar();await refresh()}catch(e){toast(e.message)}};
+document.addEventListener("click",()=>$("#userbar")?.classList.remove("open"));
+async function switchUser(){await logout(true)}
+async function logout(clearForm=false){await api("/api/logout",{method:"POST",body:"{}"});currentUser=null;adminOverview=null;appConfig=null;$("#userbar").style.display="none";["adminNav","modelSettingsNav","promptSettingsNav","settingsNav"].forEach(id=>$("#"+id).style.display="none");if(clearForm){setAuthMode("login");$("#authUsername").value="";$("#authPassword").value="";$("#authDisplay").value="";$("#managerCode").value=""}showAuth(true)}
+init().catch(e=>toast(e.message));
+</script>
+</body></html>
